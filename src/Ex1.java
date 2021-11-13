@@ -19,17 +19,12 @@ public class Ex1 {
         System.out.println(queries);
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
-            if(query.charAt(0)=='P'){
+            if (query.charAt(0) == 'P') {
                 continue;
-            }
-            else {
+            } else {
                 System.out.println(net.bayes_ball(query));
             }
         }
-//        String str = "hhhh|llll";
-//        String[] s =str.split("\\|");
-//        System.out.println(Arrays.toString(s));
-
     }
 
     public static void readTxtFile(String file, Network net, ArrayList<String> queries) {

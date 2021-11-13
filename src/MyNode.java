@@ -7,6 +7,7 @@ public class MyNode {
     public ArrayList<MyNode> children;
     public double[] cpt_table;//should be a class.
 
+
     public MyNode(String name) {
         this.name = name;
         outcomes = new ArrayList<>();
