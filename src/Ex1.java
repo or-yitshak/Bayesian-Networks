@@ -5,20 +5,34 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Ex1 {
 
     public static void main(String[] args) {
         Network net = new Network();
-
-        readTxtFile("input.txt", net);
+        ArrayList<String> queries = new ArrayList<>();
+        readTxtFile("input.txt", net, queries);
         System.out.println(net);
-
+        System.out.println(queries);
+        for (int i = 0; i < queries.size(); i++) {
+            String query = queries.get(i);
+            if(query.charAt(0)=='P'){
+                continue;
+            }
+            else {
+                System.out.println(net.bayes_ball(query));
+            }
+        }
+//        String str = "hhhh|llll";
+//        String[] s =str.split("\\|");
+//        System.out.println(Arrays.toString(s));
 
     }
 
-    public static void readTxtFile(String file, Network net) {
+    public static void readTxtFile(String file, Network net, ArrayList<String> queries) {
         try {
             File myObj = new File(file);
             Scanner myReader = new Scanner(myObj);
@@ -26,10 +40,7 @@ public class Ex1 {
             myReadXmlFile(xml_name, net);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                /*
-                add what you want to do with the given line.create an array of queries.
-                 */
-                System.out.println(data);
+                queries.add(data);
             }
             myReader.close();
         } catch (Exception e) {
@@ -43,15 +54,9 @@ public class Ex1 {
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                /*
-                add what you want to do with the given line.
-                 */
                 if (data.equals("") || data.equals("<VARIABLE>") || data.equals("</VARIABLE>") || data.equals("<NETWORK>") || data.equals("<DEFINITION>") || data.equals("</DEFINITION>")) {
                     continue;
                 }
-//                if(data.contains("\t")){
-//                    data = data.substring(1);
-//                }
                 if (data.contains("<NAME>")) {
                     String name = getData(data);
                     MyNode nd = new MyNode(name);
@@ -79,7 +84,6 @@ public class Ex1 {
                     String[] str_table = str.split(" ");
                     double[] table = toDoubletArray(str_table);
                     curr_nd.cpt_table = table;
-
                 }
             }
 
@@ -89,8 +93,6 @@ public class Ex1 {
     }
 
     private static String getData(String data) {
-//        char[] chars = data.toCharArray();
-
         int start, end;
         int i = 0;
         while (data.charAt(i) != '>') {
@@ -113,36 +115,36 @@ public class Ex1 {
         return arr;
     }
 
-
-    private static void readXmlFile(String data) {
-
-        try {
-//creating a constructor of file class and parsing an XML file
-            File file = new File(data);
-//an instance of factory that gives a document builder
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//an instance of builder to parse the specified xml file
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(file);
-            doc.getDocumentElement().normalize();
-            System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-            NodeList nodeList = doc.getElementsByTagName("student");
-// nodeList is not iterable, so we are using for loop
-            for (int itr = 0; itr < nodeList.getLength(); itr++) {
-                Node node = nodeList.item(itr);
-                System.out.println("\nNode Name :" + node.getNodeName());
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-//                    Element eElement = (Element) node;
-//                    System.out.println("Student id: "+ eElement.getElementsByTagName("id").item(0).getTextContent());
-//                    System.out.println("First Name: "+ eElement.getElementsByTagName("firstname").item(0).getTextContent());
-//                    System.out.println("Last Name: "+ eElement.getElementsByTagName("lastname").item(0).getTextContent());
-//                    System.out.println("Subject: "+ eElement.getElementsByTagName("subject").item(0).getTextContent());
-//                    System.out.println("Marks: "+ eElement.getElementsByTagName("marks").item(0).getTextContent());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//
+//    private static void readXmlFile(String data) {
+//
+//        try {
+////creating a constructor of file class and parsing an XML file
+//            File file = new File(data);
+////an instance of factory that gives a document builder
+//            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+////an instance of builder to parse the specified xml file
+//            DocumentBuilder db = dbf.newDocumentBuilder();
+//            Document doc = db.parse(file);
+//            doc.getDocumentElement().normalize();
+//            System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
+//            NodeList nodeList = doc.getElementsByTagName("student");
+//// nodeList is not iterable, so we are using for loop
+//            for (int itr = 0; itr < nodeList.getLength(); itr++) {
+//                Node node = nodeList.item(itr);
+//                System.out.println("\nNode Name :" + node.getNodeName());
+//                if (node.getNodeType() == Node.ELEMENT_NODE) {
+////                    Element eElement = (Element) node;
+////                    System.out.println("Student id: "+ eElement.getElementsByTagName("id").item(0).getTextContent());
+////                    System.out.println("First Name: "+ eElement.getElementsByTagName("firstname").item(0).getTextContent());
+////                    System.out.println("Last Name: "+ eElement.getElementsByTagName("lastname").item(0).getTextContent());
+////                    System.out.println("Subject: "+ eElement.getElementsByTagName("subject").item(0).getTextContent());
+////                    System.out.println("Marks: "+ eElement.getElementsByTagName("marks").item(0).getTextContent());
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
 //        // Instantiate the Factory
@@ -204,7 +206,7 @@ public class Ex1 {
 //        } catch (ParserConfigurationException | SAXException | IOException e) {
 //            e.printStackTrace();
 //        }
-    }
+//    }
 
 
 }
