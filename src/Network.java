@@ -169,13 +169,11 @@ public class Network {
         if(in_table){
             Table t = q_nd.cpt_table;
             for (int i = 0; i < e.size(); i++) {
-                int col_index;
+                String ans="";
                 for (int j = 0; j < t.nodes_in.length; j++) {
-                    if(e.get(i)==t.nodes_in[j]){
-                        col_index = j;
-                    }
+                    ans += names_values.get(t.nodes_in[j]);
                 }
-
+//                t.table.indexOf()
 
             }
         }
