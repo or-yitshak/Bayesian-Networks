@@ -4,10 +4,13 @@ public class Network {
     //    public LinkedList<String>[] edges;
     public ArrayList<String> nodes_names;
     public ArrayList<MyNode> nodes;
+    Hashtable<String,MyNode> hs = new Hashtable<>();
 
     public Network() {
         nodes = new ArrayList<>();
         nodes_names = new ArrayList<>();
+        hs = new Hashtable<>();
+
     }
 
     public MyNode getNode(String name) {
@@ -147,13 +150,48 @@ public class Network {
     }
 
     public String variableElimination(String query) {
-        String[] x = query.split(" ");
-        String[] hiddens = x[1].split("-");//[A, E]
-        String str = x[0].substring(2, x[0].length() - 1);//B=T|J=T,M=T
-        x = str.split("\\|");//[B=T, J=T,M=T] 2 strings
+        String[] querys_subs = query.split(" ");
+        String[] hidden = querys_subs[1].split("-");//[A, E]
+        String str = querys_subs[0].substring(2, querys_subs[0].length() - 1);//B=T|J=T,M=T
+        querys_subs = str.split("\\|");//[B=T, J=T,M=T] 2 strings
         Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
-        Hashtable<String, String> names_roles = new Hashtable<>();//{J=E, M=E, B=Q}
-        getNamesAndValues(x,names_values,names_roles);
+        getNamesAndValues(querys_subs,names_values);
+        String q = querys_subs[0].substring(0,1);
+        ArrayList<String> e = getGivens(querys_subs[1]);
+
+        boolean in_table = true;
+        MyNode q_nd = hs.get(q);
+        for (int i = 0; i < e.size(); i++) {
+            if(!q_nd.parents.contains(e.get(i))){
+                in_table = false;
+            }
+        }
+        if(in_table){
+            Table t = q_nd.cpt_table;
+            for (int i = 0; i < e.size(); i++) {
+                int col_index;
+                for (int j = 0; j < t.nodes_in.length; j++) {
+                    if(e.get(i)==t.nodes_in[j]){
+                        col_index = j;
+                    }
+                }
+
+
+            }
+        }
+
+        ArrayList<String> relevant_hidden = new ArrayList<>();
+        for (int i = 0; i < hidden.length; i++) {
+            String new_query = q+"-"+hidden[i]+"|"+querys_subs[1];
+            System.out.println(new_query);
+            System.out.println(this.bayes_ball(new_query));
+            if(!this.bayes_ball(new_query)){
+                relevant_hidden.add(hidden[i]);
+            }
+
+
+
+        }
 
 
 
@@ -164,15 +202,13 @@ public class Network {
     }
 
 
-    private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values, Hashtable<String, String> names_roles) {
+    private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values) {
         String[] q = x[0].split("=");
         names_values.put(q[0], q[1]);
-        names_roles.put(q[0],"Q");
         String[] e = x[1].split(",");
         for (int i = 0; i < e.length; i++) {
             String[] curr_e = e[i].split("=");
             names_values.put(curr_e[0], curr_e[1]);
-            names_roles.put(curr_e[0],"E");
         }
     }
 
