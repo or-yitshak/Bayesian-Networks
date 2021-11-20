@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -52,15 +53,15 @@ public class Network {
         int j = this.nodes.indexOf(nd1);
         visited[j][0] = true;
         visited[j][1] = true;
-        while (!q.isEmpty()) {
+        while (!q.isEmpty()) {//traveling in the network in BFS style combined with bayes ball rules.
             MyNode curr_nd = q.poll();
             boolean came_from_son = came_from_son_q.poll();
             boolean is_given = givens.contains(curr_nd.name);
             j = this.nodes.indexOf(curr_nd);
-            if (visited[j][0] && came_from_son) {
+            if (visited[j][0] && came_from_son) {//if we already came to this node from his children we can skip it to avoid repeating the same actions again.
                 continue;
             }
-            if (visited[j][1] && !came_from_son) {
+            if (visited[j][1] && !came_from_son) {//if we already came to this node from his parents we can skip it to avoid repeating the same actions again.
                 continue;
             }
             /*
@@ -147,6 +148,22 @@ public class Network {
         }
         return ans;
     }
+
+    public String variableElimination(String query){
+        String[] x = query.split(" ");
+        String[] hiddens = x[1].split("-");
+        String str = x[0].substring(2,x[0].length()-1);
+        x = str.split("\\|");
+        ArrayList<String> q = getGivens(x[0]);
+        ArrayList<String> e = getGivens(x[1]);
+        System.out.println(Arrays.toString(x)+"\n"+Arrays.toString(hiddens)+"\n"+str+"\n"+Arrays.toString(x)+"\n"+q+"\n"+e );
+
+
+
+        return"";
+    }
+
+
 
 
     @Override

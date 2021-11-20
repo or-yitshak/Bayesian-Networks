@@ -20,7 +20,7 @@ public class Ex1 {
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
             if (query.charAt(0) == 'P') {
-                continue;
+                net.variableElimination(query);
             } else {
                 System.out.println(net.bayes_ball(query));
             }
@@ -103,9 +103,9 @@ public class Ex1 {
     }
 
     private static double[] toDoubletArray(String[] strs) {
-        double[] arr = new double[strs.length];
-        for (int i = 0; i < strs.length; i += 2) {
-            arr[i] = Double.parseDouble(strs[i]);
+        double[] arr = new double[strs.length/2];
+        for (int i = 0; i < strs.length/2; i ++) {
+            arr[i] = Double.parseDouble(strs[i*2]);
         }
         return arr;
     }
