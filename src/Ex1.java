@@ -25,6 +25,10 @@ public class Ex1 {
                 System.out.println(net.bayes_ball(query));
             }
         }
+        for (int i = 0; i < net.nodes.size(); i++) {
+            System.out.println(net.nodes.get(i).cpt_table);
+
+        }
     }
 
     public static void readTxtFile(String file, Network net, ArrayList<String> queries) {
@@ -77,8 +81,9 @@ public class Ex1 {
                     }
                     String str = getData(data);
                     String[] str_table = str.split(" ");
-                    double[] table = toDoubletArray(str_table);
-                    curr_nd.cpt_table = table;
+                    Table t = new Table(str_table,curr_nd);
+//                    double[] table = toDoubletArray(str_table);
+                    curr_nd.cpt_table = t;
                 }
             }
 

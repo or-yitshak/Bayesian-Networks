@@ -5,7 +5,7 @@ public class MyNode {
     public ArrayList<String> outcomes;
     public ArrayList<MyNode> parents;
     public ArrayList<MyNode> children;
-    public double[] cpt_table;//should be a class.
+    public Table cpt_table;//should be a class.
 
 
     public MyNode(String name) {

@@ -157,7 +157,7 @@ public class Network {
 
 
 
-        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
+//        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
 
 
         return "";
