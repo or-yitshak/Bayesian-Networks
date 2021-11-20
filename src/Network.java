@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Network {
     //    public LinkedList<String>[] edges;
@@ -29,7 +26,7 @@ public class Network {
         MyNode nd1 = getNode(vertices[0]);
         MyNode nd2 = getNode(vertices[1]);
         Queue<MyNode> q = new LinkedList<>();// a queue that will hold the nodes we need to visit.
-        Queue<Boolean> came_from_son_q = new LinkedList<>();// a parallel queue to the ine above that hold true if we got to this node from his children and false otherwise.
+        Queue<Boolean> came_from_son_q = new LinkedList<>();// a parallel queue to the one above that hold true if we got to this node from his children and false otherwise.
         boolean[][] visited = new boolean[this.nodes.size()][2];// 2D array the first column says if we already got to this node from his children and the 2 column says if we already got to this node from his parent.
         /*
         we will begin to travel on the network from nd1 so at first we will add his parents and children.
@@ -149,31 +146,45 @@ public class Network {
         return ans;
     }
 
-    public String variableElimination(String query){
+    public String variableElimination(String query) {
         String[] x = query.split(" ");
-        String[] hiddens = x[1].split("-");
-        String str = x[0].substring(2,x[0].length()-1);
-        x = str.split("\\|");
-        ArrayList<String> q = getGivens(x[0]);
-        ArrayList<String> e = getGivens(x[1]);
-        System.out.println(Arrays.toString(x)+"\n"+Arrays.toString(hiddens)+"\n"+str+"\n"+Arrays.toString(x)+"\n"+q+"\n"+e );
+        String[] hiddens = x[1].split("-");//[A, E]
+        String str = x[0].substring(2, x[0].length() - 1);//B=T|J=T,M=T
+        x = str.split("\\|");//[B=T, J=T,M=T] 2 strings
+        Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
+        Hashtable<String, String> names_roles = new Hashtable<>();//{J=E, M=E, B=Q}
+        getNamesAndValues(x,names_values,names_roles);
 
 
 
-        return"";
+        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
+
+
+        return "";
     }
 
 
-
-
-    @Override
-    public String toString() {
-        return "Network{\n" +
-                nodes +
-                '}';
+    private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values, Hashtable<String, String> names_roles) {
+        String[] q = x[0].split("=");
+        names_values.put(q[0], q[1]);
+        names_roles.put(q[0],"Q");
+        String[] e = x[1].split(",");
+        for (int i = 0; i < e.length; i++) {
+            String[] curr_e = e[i].split("=");
+            names_values.put(curr_e[0], curr_e[1]);
+            names_roles.put(curr_e[0],"E");
+        }
     }
 
-    public static void main(String[] args) {
 
+        @Override
+        public String toString () {
+            return "Network{\n" +
+                    nodes +
+                    '}';
+        }
+
+        public static void main (String[]args){
+
+        }
     }
-}

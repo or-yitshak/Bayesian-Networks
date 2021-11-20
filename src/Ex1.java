@@ -102,13 +102,7 @@ public class Ex1 {
         return ans;
     }
 
-    private static double[] toDoubletArray(String[] strs) {
-        double[] arr = new double[strs.length/2];
-        for (int i = 0; i < strs.length/2; i ++) {
-            arr[i] = Double.parseDouble(strs[i*2]);
-        }
-        return arr;
-    }
+
 
 //
 //    private static void readXmlFile(String data) {
