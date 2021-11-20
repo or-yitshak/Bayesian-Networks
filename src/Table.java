@@ -3,7 +3,7 @@ import java.util.Arrays;
 
 public class Table {
     String[] nodes_in;
-    ArrayList<String[]> table; //row as the length of the double list and cols as the number of nodes_in
+    ArrayList<String> table; //row as the length of the double list and cols as the number of nodes_in
     double[] probs;
 
     public Table(String[] nums ,MyNode nd){
@@ -25,22 +25,23 @@ public class Table {
 
     }
 
-    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String[]> t){
-        String[] curr = new String[nodes.size()];
+    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String> t){
+        String curr="";// = new String[nodes.size()];
         recAddAllCombinations(nodes, curr , 0, t);
     }
 
-    public static void recAddAllCombinations(ArrayList<MyNode> nodes, String[] curr , int i ,ArrayList<String[]> t) {
+    public static void recAddAllCombinations(ArrayList<MyNode> nodes, String curr , int i ,ArrayList<String> t) {
         if(i==nodes.size()) {
-            System.out.println(Arrays.toString(curr));
-            t.add(curr.clone());
+            System.out.println(curr);
+            t.add(curr);
         }
         else{
             MyNode curr_node= nodes.get(i);
             int outs = curr_node.outcomes.size();
             for (int j = 0; j < outs; j++) {
-                curr[i] = curr_node.outcomes.get(j);
+                curr += curr_node.outcomes.get(j);
                 recAddAllCombinations(nodes, curr, i+1, t);
+                curr = curr.substring(0,curr.length()-curr_node.outcomes.get(j).length());
             }
         }
     }
@@ -48,14 +49,14 @@ public class Table {
 
     @Override
     public String toString() {
-        String str = "[";
-        for (int i = 0; i < table.size()-1; i++) {
-            str += Arrays.toString(table.get(i))+", ";
-        }
-        str += Arrays.toString(table.get(table.size()-1))+"]";
+//        String str = "[";
+//        for (int i = 0; i < table.size()-1; i++) {
+//            str += Arrays.toString(table.get(i))+", ";
+//        }
+//        str += Arrays.toString(table.get(table.size()-1))+"]";
         return "Table{" +"\n"+
                 "nodes_in=" + Arrays.toString(nodes_in) +"\n"+
-                ", table=" + str +"\n"+
+                ", table=" + table +"\n"+
                 ", probs=" + Arrays.toString(probs) +"\n"+
                 '}';
     }
