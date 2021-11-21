@@ -31,7 +31,6 @@ public class Table {
             double curr_prob = probs[i];
             table.put(curr_str,curr_prob);
         }
-
     }
 
     public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String> t){

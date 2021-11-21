@@ -158,26 +158,38 @@ public class Network {
         getNamesAndValues(querys_subs,names_values);
         String q = querys_subs[0].substring(0,1);
         ArrayList<String> e = getGivens(querys_subs[1]);
-
+        /*
+        at first, we will check if the answer to this query is already given in one of the cpt_tables.
+        to check it we will go to the query node and check if the evidence given are equal to his parents.
+        if all his parents are given then the answer will appear in his cpt_table.
+         */
         boolean in_table = true;
         MyNode q_nd = hs.get(q);
         for (int i = 0; i < e.size(); i++) {
-            if(!q_nd.parents.contains(e.get(i))){
+            MyNode curr_nd = hs.get(e.get(i));
+            if(!q_nd.parents.contains(curr_nd)){
                 in_table = false;
             }
         }
         if(in_table){
             Table t = q_nd.cpt_table;
-            for (int i = 0; i < e.size(); i++) {
-                String ans="";
+            if(t.nodes_in.length-1 == e.size()){
+                String s="";
                 for (int j = 0; j < t.nodes_in.length; j++) {
-                    ans += names_values.get(t.nodes_in[j]);
+                    s += names_values.get(t.nodes_in[j]);
                 }
-//                t.table.indexOf()
-
+                double prob = t.table.get(s);
+                String ans = prob+",0,0";
+                System.out.println(ans);
+                return ans;
             }
         }
-
+        /*
+        next we will go over the hidden nodes and check if they are conditionally independent in the query node with the
+        given evidence. we will do it by creating new query(in the style that given in the input.txt) and use
+        bayes_ball function on it. if the answer will be true we will omit the curr variable because he is
+        not relevant to our calculation.
+         */
         ArrayList<String> relevant_hidden = new ArrayList<>();
         for (int i = 0; i < hidden.length; i++) {
             String new_query = q+"-"+hidden[i]+"|"+querys_subs[1];
@@ -186,9 +198,6 @@ public class Network {
             if(!this.bayes_ball(new_query)){
                 relevant_hidden.add(hidden[i]);
             }
-
-
-
         }
 
 
