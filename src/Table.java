@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 
-public class Table {
+public class Table implements Comparable<Table>{
     ArrayList<String> nodes_order;
     Hashtable<String,Double> table;
 //    ArrayList<String> values_table; //row as the length of the double list and cols as the number of nodes_in
@@ -64,6 +64,36 @@ public class Table {
                 "nodes_in=" + nodes_order +
                 ", table=" + table +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Table t) {
+        int ans = this.table.size() - t.table.size();
+        if(ans == 0){
+            int sum1 = 0;
+            for (int i = 0; i < this.nodes_order.size(); i++) {
+                String curr_str = this.nodes_order.get(i);
+                for (int j = 0; j < curr_str.length(); j++) {
+                    char c = curr_str.charAt(j);
+                    int value = (int)(c);
+                    sum1 += value;
+                }
+            }
+            int sum2 = 0;
+            for (int i = 0; i < t.nodes_order.size(); i++) {
+                String curr_str = t.nodes_order.get(i);
+                for (int j = 0; j < curr_str.length(); j++) {
+                    char c = curr_str.charAt(j);
+                    int value = (int)(c);
+                    sum2 += value;
+                }
+            }
+            if(sum1==sum2){return 0;}
+            if(sum1>sum2){return 1;}
+            else {return -1;}
+        }
+        else if(ans>0){return 1;}
+        else {return -1;}
     }
 //    @Override
 //    public String toString() {

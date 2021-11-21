@@ -199,9 +199,49 @@ public class Network {
                 relevant_hidden.add(hidden[i]);
             }
         }
+        /*
+        the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
+         */
+        ArrayList<Table> factors = new ArrayList<>();
+        for (int i = 0; i < relevant_hidden.size(); i++) {
+            String curr_name = relevant_hidden.get(i);
+            MyNode curr_nd = hs.get(curr_name);
+            factors.add(curr_nd.cpt_table);
+        }
+        for (int i = 0; i < e.size(); i++) {
+            String curr_name = e.get(i);
+            MyNode curr_nd = hs.get(curr_name);
+            factors.add(curr_nd.cpt_table);
+        }
+        factors.add(q_nd.cpt_table);
 
-        Table t = join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
-        elimination(t,"B");
+
+        for (int i = 0; i < relevant_hidden.size(); i++) {
+            String curr_name = relevant_hidden.get(i);
+            while()
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        Table t = join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
+//        elimination(t,"B");
 
 //        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
 
