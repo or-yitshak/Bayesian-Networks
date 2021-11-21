@@ -200,29 +200,97 @@ public class Network {
             }
         }
         /*
-        the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
+        now we will go over the nodes and update their tables if some evidence appears in it.
          */
         ArrayList<Table> factors = new ArrayList<>();
+        for (int i = 0; i < nodes_names.size(); i++) {
+            String curr_name = nodes_names.get(i);
+            MyNode curr_nd =hs.get(curr_name);
+            Table new_f = new Table(curr_nd.cpt_table);
+            for (int j = 0; j < e.size(); j++) {
+                String curr_e = e.get(j);
+                if(curr_nd.cpt_table.nodes_order.contains(curr_e)){
+                    evidence_reduce(new_f,curr_e,names_values.get(e));
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+        /*
+        the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
+         */
+
         for (int i = 0; i < relevant_hidden.size(); i++) {
             String curr_name = relevant_hidden.get(i);
             MyNode curr_nd = hs.get(curr_name);
             factors.add(curr_nd.cpt_table);
         }
-        for (int i = 0; i < e.size(); i++) {
-            String curr_name = e.get(i);
-            MyNode curr_nd = hs.get(curr_name);
-            factors.add(curr_nd.cpt_table);
-        }
+//        for (int i = 0; i < e.size(); i++) {
+//            String curr_name = e.get(i);
+//            MyNode curr_nd = hs.get(curr_name);
+//            factors.add(curr_nd.cpt_table);
+//        }
         factors.add(q_nd.cpt_table);
-
-
+        factors.sort(Table::compareTo);
+        System.out.println(factors);
         for (int i = 0; i < relevant_hidden.size(); i++) {
             String curr_name = relevant_hidden.get(i);
-            while()
+            while(true){
+                Table f1 = null;
+                Table f2 = null;
+                for (int j = 0; j < factors.size(); j++) {
+                    Table curr_factor =factors.get(j);
+                    if(curr_factor.nodes_order.contains(curr_name)) {
+                        if (f1 == null) {
+                            f1 = curr_factor;
+                        }
+                        else {
+                            f2 =curr_factor;
+                            break;
+                        }
+                    }
+                }
+                if(f1 != null && f2 != null){
+                    factors.remove(f1);
+                    factors.remove(f2);
+                    Table new_factor = join(f1,f2,hs);
+                    factors.add(new_factor);
+                    factors.sort(Table::compareTo);
+                }
+                else{
+                    factors.remove(f1);
+                    Table new_factor = elimination(f1,curr_name);
+                    factors.add(new_factor);
+                    factors.sort(Table::compareTo);
+                    break;
+                }
+            }
         }
+        while (factors.size() != 1){
+            Table f1 = factors.get(0);
+            Table f2 = factors.get(1);
+            factors.remove(f1);
+            factors.remove(f2);
+            Table new_factor = join(f1,f2,hs);
+            factors.add(new_factor);
+            factors.sort(Table::compareTo);
+        }
+        Table f = factors.get(0);
+        double prob = f.table.get("TTT")/(f.table.get("TTT")+f.table.get("FTT"));
+//        ArrayList<Double>  x = new ArrayList<>(f.table.values());
+//        for (int i = 0; i < x.size(); i++) {
+//            prob+= x.get(i);
+//        }
+        System.out.println(prob);
 
 
-
+//        System.out.println(hs.get("A").cpt_table>hs.get("B").cpt_table);
 
 
 
@@ -250,6 +318,8 @@ public class Network {
     }
 
 
+
+
     private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values) {
         String[] q = x[0].split("=");
         names_values.put(q[0], q[1]);
@@ -259,6 +329,20 @@ public class Network {
             names_values.put(curr_e[0], curr_e[1]);
         }
     }
+
+    private void evidence_reduce(Table new_f, String curr_e, String value) {
+        int index = new_f.nodes_order.indexOf(curr_e);
+        Set<String> keys= new HashSet<>(new_f.table.keySet());
+        for (String key: keys){
+            if (!key.subSequence(index,index+value.length()).equals(value)){
+                new_f.table.remove(key);
+            }
+        }
+    }
+
+
+
+
 
     private static Table join(Table f1, Table f2, Hashtable<String,MyNode> names_nodes) {
         Table ans =  new Table();

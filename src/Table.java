@@ -11,6 +11,11 @@ public class Table implements Comparable<Table>{
         nodes_order = new ArrayList<>();
     }
 
+    public Table(Table t){
+        this.nodes_order = new ArrayList<>(t.nodes_order);
+        this.table = new Hashtable<>(t.table);
+    }
+
 
     public Table(String[] nums ,MyNode nd){
         nodes_order = new ArrayList<>();
