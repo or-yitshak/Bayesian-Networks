@@ -200,8 +200,8 @@ public class Network {
             }
         }
 
-        join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
-
+        Table t = join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
+        elimination(t,"B");
 
 //        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
 
@@ -283,9 +283,33 @@ public class Network {
         return ans;
     }
 
-//    private static Hashtable<String, MyNode> join(Hashtable<String, MyNode> f, MyNode v) {
-//
-//    }
+    private static Table elimination(Table f, String name) {
+        Table ans = new Table();
+        for (int i = 0; i < f.nodes_order.size(); i++) {
+            String curr_name = f.nodes_order.get(i);
+            if(!curr_name.equals(name)){
+                ans.nodes_order.add(curr_name);
+            }
+        }
+        int index = f.nodes_order.indexOf(name);
+        Set<String> curr_keys = new HashSet<>(f.table.keySet());
+        for (String key : curr_keys){
+            String new_key = key.substring(0,index);
+            if(index+1 != key.length()){
+                new_key += key.substring(index+1);
+            }
+            Double prob = f.table.get(key);
+            if (ans.table.containsKey(new_key)){
+                double new_prob = prob + ans.table.get(new_key);
+                ans.table.put(new_key,new_prob);
+            }
+            else{
+                ans.table.put(new_key,prob);
+            }
+        }
+        System.out.println(ans);
+        return ans;
+    }
 
 
         @Override
