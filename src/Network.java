@@ -199,20 +199,26 @@ public class Network {
                 relevant_hidden.add(hidden[i]);
             }
         }
+
+        ArrayList<String> relevant = new ArrayList<>(relevant_hidden);
+        for (int i = 0; i < e.size(); i++) {
+            relevant.add(e.get(i));
+        }
         /*
         now we will go over the nodes and update their tables if some evidence appears in it.
          */
         ArrayList<Table> factors = new ArrayList<>();
-        for (int i = 0; i < nodes_names.size(); i++) {
-            String curr_name = nodes_names.get(i);
+        for (int i = 0; i < relevant.size(); i++) {
+            String curr_name = relevant.get(i);
             MyNode curr_nd =hs.get(curr_name);
             Table new_f = new Table(curr_nd.cpt_table);
             for (int j = 0; j < e.size(); j++) {
                 String curr_e = e.get(j);
                 if(curr_nd.cpt_table.nodes_order.contains(curr_e)){
-                    evidence_reduce(new_f,curr_e,names_values.get(e));
+                    evidence_reduce(new_f,curr_e,names_values.get(curr_e));
                 }
             }
+            factors.add(new_f);
         }
 
 
@@ -226,11 +232,11 @@ public class Network {
         the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
          */
 
-        for (int i = 0; i < relevant_hidden.size(); i++) {
-            String curr_name = relevant_hidden.get(i);
-            MyNode curr_nd = hs.get(curr_name);
-            factors.add(curr_nd.cpt_table);
-        }
+//        for (int i = 0; i < relevant.size(); i++) {
+//            String curr_name = relevant.get(i);
+//            MyNode curr_nd = hs.get(curr_name);
+//            factors.add(curr_nd.cpt_table);
+//        }
 //        for (int i = 0; i < e.size(); i++) {
 //            String curr_name = e.get(i);
 //            MyNode curr_nd = hs.get(curr_name);
@@ -282,11 +288,14 @@ public class Network {
             factors.sort(Table::compareTo);
         }
         Table f = factors.get(0);
-        double prob = f.table.get("TTT")/(f.table.get("TTT")+f.table.get("FTT"));
-//        ArrayList<Double>  x = new ArrayList<>(f.table.values());
-//        for (int i = 0; i < x.size(); i++) {
-//            prob+= x.get(i);
-//        }
+        double sum = 0;// f.table.get("TTT")/(f.table.get("TTT")+f.table.get("FTT"));
+        ArrayList<Double>  x = new ArrayList<>(f.table.values());
+        for (int i = 0; i < x.size(); i++) {
+            sum+= x.get(i);
+        }
+        String wanted_value = names_values.get(q);
+        double y = f.table.get(wanted_value);
+        double prob = y/sum;
         System.out.println(prob);
 
 
@@ -337,7 +346,17 @@ public class Network {
             if (!key.subSequence(index,index+value.length()).equals(value)){
                 new_f.table.remove(key);
             }
+            else {
+                double prob = new_f.table.get(key);
+                new_f.table.remove(key);
+                String new_key = key.substring(0,index);
+                if(index+value.length()<key.length()){
+                    new_key += key.substring(index+value.length());
+                }
+                new_f.table.put(new_key,prob);
+            }
         }
+        new_f.nodes_order.remove(curr_e);
     }
 
 
