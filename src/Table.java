@@ -3,17 +3,21 @@ import java.util.Arrays;
 import java.util.Hashtable;
 
 public class Table {
-    String[] nodes_in;
+    ArrayList<String> nodes_order;
     Hashtable<String,Double> table;
 //    ArrayList<String> values_table; //row as the length of the double list and cols as the number of nodes_in
+    public Table(){
+        table = new Hashtable<>();
+        nodes_order = new ArrayList<>();
+    }
 
 
     public Table(String[] nums ,MyNode nd){
-        nodes_in = new String[nd.parents.size()+1];
+        nodes_order = new ArrayList<>();
         for (int i = 0; i <nd.parents.size(); i++) {
-            nodes_in[i] = nd.parents.get(i).name;
+            nodes_order.add(nd.parents.get(i).name) ;
         }
-        nodes_in[nodes_in.length-1] = nd.name;
+        nodes_order.add(nd.name);
 
         ArrayList<String> values_table = new ArrayList<>();
         ArrayList<MyNode> nd_list = new ArrayList<>(nd.parents);
@@ -57,7 +61,7 @@ public class Table {
     @Override
     public String toString() {
         return "Table{" +
-                "nodes_in=" + Arrays.toString(nodes_in) +
+                "nodes_in=" + nodes_order +
                 ", table=" + table +
                 '}';
     }
