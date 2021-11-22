@@ -1,4 +1,6 @@
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * this class represent a Bayesian Network. it holds an ArrayList of the names of the nodes it contains,
@@ -267,6 +269,8 @@ public class Network {
 //        }
         factors.add(q_nd.cpt_table);
         factors.sort(Table::compareTo);
+        AtomicInteger mul_counter = new AtomicInteger();
+        AtomicInteger add_counter = new AtomicInteger();
         System.out.println(factors);
         for (int i = 0; i < relevant_hidden.size(); i++) {
             String curr_name = relevant_hidden.get(i);
@@ -287,12 +291,12 @@ public class Network {
                 if (f1 != null && f2 != null) {
                     factors.remove(f1);
                     factors.remove(f2);
-                    Table new_factor = join(f1, f2, hs);
+                    Table new_factor = join(f1, f2, hs, mul_counter);
                     factors.add(new_factor);
                     factors.sort(Table::compareTo);
                 } else {
                     factors.remove(f1);
-                    Table new_factor = elimination(f1, curr_name);
+                    Table new_factor = elimination(f1, curr_name, add_counter);
                     factors.add(new_factor);
                     factors.sort(Table::compareTo);
                     break;
@@ -304,7 +308,7 @@ public class Network {
             Table f2 = factors.get(1);
             factors.remove(f1);
             factors.remove(f2);
-            Table new_factor = join(f1, f2, hs);
+            Table new_factor = join(f1, f2, hs, mul_counter);
             factors.add(new_factor);
             factors.sort(Table::compareTo);
         }
@@ -319,22 +323,13 @@ public class Network {
         for (int i = 0; i < x.size(); i++) {
             sum += x.get(i);
         }
+        add_counter.addAndGet(x.size() - 1);
         String wanted_value = names_values.get(q);
         double y = f.table.get(wanted_value);
         double prob = y / sum;
-        System.out.println(prob);
-
-
-//        System.out.println(hs.get("A").cpt_table>hs.get("B").cpt_table);
-
-
-//        Table t = join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
-//        elimination(t,"B");
-
-//        System.out.println(Arrays.toString(hiddens) + "\n" + str + "\n" + Arrays.toString(x) + "\n" + names_values + "\n" + names_roles);
-
-
-        return "";
+        String ans = String.format("%.5g", prob) + "," + add_counter + "," + mul_counter;
+        System.out.println(ans);
+        return ans;
     }
 
     /**
@@ -392,7 +387,7 @@ public class Network {
      * @param names_nodes - the Hashtable of the Network.
      * @return - new factor, new CPT table.
      */
-    private static Table join(Table f1, Table f2, Hashtable<String, MyNode> names_nodes) {
+    private static Table join(Table f1, Table f2, Hashtable<String, MyNode> names_nodes, AtomicInteger mul_counter) {
         Table ans = new Table();
         ArrayList<String> common_nodes = new ArrayList();
         ArrayList<MyNode> nd_list = new ArrayList<>();
@@ -442,6 +437,7 @@ public class Network {
             double prob1 = f1.table.get(f1_str);
             double prob2 = f2.table.get(f2_str);
             probs[i] = prob1 * prob2;
+            mul_counter.addAndGet(1);
         }
         System.out.println(ans.nodes_order);
         System.out.println(Arrays.toString(probs));
@@ -462,7 +458,7 @@ public class Network {
      * @param name - the name of the node in the Network we want to eliminate from this table.
      * @return - new factor, new CPT table.
      */
-    private static Table elimination(Table f, String name) {
+    private static Table elimination(Table f, String name, AtomicInteger add_counter) {
         Table ans = new Table();
         for (int i = 0; i < f.nodes_order.size(); i++) {
             String curr_name = f.nodes_order.get(i);
@@ -481,6 +477,7 @@ public class Network {
             if (ans.table.containsKey(new_key)) {
                 double new_prob = prob + ans.table.get(new_key);
                 ans.table.put(new_key, new_prob);
+                add_counter.addAndGet(1);
             } else {
                 ans.table.put(new_key, prob);
             }
