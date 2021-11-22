@@ -1,10 +1,16 @@
 import java.util.*;
 
+/**
+ * this class represent a Bayesian Network. it holds an ArrayList of the names of the nodes it contains,
+ * an ArrayList of the nodes it contains and a Hashmap such that the key is a name of a node
+ * and the value is node object answering to this name.
+ */
+
 public class Network {
-    //    public LinkedList<String>[] edges;
+
     public ArrayList<String> nodes_names;
     public ArrayList<MyNode> nodes;
-    Hashtable<String,MyNode> hs = new Hashtable<>();
+    Hashtable<String, MyNode> hs = new Hashtable<>();
 
     public Network() {
         nodes = new ArrayList<>();
@@ -18,6 +24,14 @@ public class Network {
         MyNode nd = this.nodes.get(nd_index);
         return nd;
     }
+
+    /**
+     * this function gets a query in the form of "A-B|E1=e1,E2=e2,...,Ek=ek" and will check if A conditional
+     * independent in B if E1,E2,...,Ek are given.
+     *
+     * @param query - "A-B|E1=e1,E2=e2,...,Ek=ek"
+     * @return - true if A conditional independent in B and false otherwise.
+     */
 
     public boolean bayes_ball(String query) {
         String[] x = query.split("\\|");
@@ -130,6 +144,14 @@ public class Network {
         return true;
     }
 
+    /**
+     * after splitting the query string, this function will take apart the substring of the query that contains
+     * the evidence and will put them in ArrayList.
+     *
+     * @param query
+     * @return - ArrayList of the names of the evidences.
+     */
+
     private static ArrayList<String> getGivens(String query) {
         ArrayList<String> ans = new ArrayList<>();
         String given = "";
@@ -149,14 +171,22 @@ public class Network {
         return ans;
     }
 
+    /**
+     * this function gets a query in the form of "P(Q=q|E1=e1, E2=e2, …, Ek=ek) H1-H2-…-Hj" and
+     * calculate the answer of it by using variable elimination algorithm.
+     *
+     * @param query
+     * @return - String in the form : "probability,# adding actions,# multiplying actions"
+     */
+
     public String variableElimination(String query) {
         String[] querys_subs = query.split(" ");
         String[] hidden = querys_subs[1].split("-");//[A, E]
         String str = querys_subs[0].substring(2, querys_subs[0].length() - 1);//B=T|J=T,M=T
         querys_subs = str.split("\\|");//[B=T, J=T,M=T] 2 strings
         Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
-        getNamesAndValues(querys_subs,names_values);
-        String q = querys_subs[0].substring(0,1);
+        getNamesAndValues(querys_subs, names_values);
+        String q = querys_subs[0].substring(0, 1);
         ArrayList<String> e = getGivens(querys_subs[1]);
         /*
         at first, we will check if the answer to this query is already given in one of the cpt_tables.
@@ -167,19 +197,19 @@ public class Network {
         MyNode q_nd = hs.get(q);
         for (int i = 0; i < e.size(); i++) {
             MyNode curr_nd = hs.get(e.get(i));
-            if(!q_nd.parents.contains(curr_nd)){
+            if (!q_nd.parents.contains(curr_nd)) {
                 in_table = false;
             }
         }
-        if(in_table){
+        if (in_table) {
             Table t = q_nd.cpt_table;
-            if(t.nodes_order.size()-1 == e.size()){
-                String s="";
+            if (t.nodes_order.size() - 1 == e.size()) {
+                String s = "";
                 for (int j = 0; j < t.nodes_order.size(); j++) {
                     s += names_values.get(t.nodes_order.get(j));
                 }
                 double prob = t.table.get(s);
-                String ans = prob+",0,0";
+                String ans = prob + ",0,0";
                 System.out.println(ans);
                 return ans;
             }
@@ -192,10 +222,10 @@ public class Network {
          */
         ArrayList<String> relevant_hidden = new ArrayList<>();
         for (int i = 0; i < hidden.length; i++) {
-            String new_query = q+"-"+hidden[i]+"|"+querys_subs[1];
+            String new_query = q + "-" + hidden[i] + "|" + querys_subs[1];
             System.out.println(new_query);
             System.out.println(this.bayes_ball(new_query));
-            if(!this.bayes_ball(new_query)){
+            if (!this.bayes_ball(new_query)) {
                 relevant_hidden.add(hidden[i]);
             }
         }
@@ -206,28 +236,21 @@ public class Network {
         }
         /*
         now we will go over the nodes and update their tables if some evidence appears in it.
+        therefore, if some cpt_table contains evidence e we can remove all the irrelevant outcomes of e from the table.
          */
         ArrayList<Table> factors = new ArrayList<>();
         for (int i = 0; i < relevant.size(); i++) {
             String curr_name = relevant.get(i);
-            MyNode curr_nd =hs.get(curr_name);
+            MyNode curr_nd = hs.get(curr_name);
             Table new_f = new Table(curr_nd.cpt_table);
             for (int j = 0; j < e.size(); j++) {
                 String curr_e = e.get(j);
-                if(curr_nd.cpt_table.nodes_order.contains(curr_e)){
-                    evidence_reduce(new_f,curr_e,names_values.get(curr_e));
+                if (curr_nd.cpt_table.nodes_order.contains(curr_e)) {
+                    evidence_reduce(new_f, curr_e, names_values.get(curr_e));
                 }
             }
             factors.add(new_f);
         }
-
-
-
-
-
-
-
-
         /*
         the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
          */
@@ -247,74 +270,62 @@ public class Network {
         System.out.println(factors);
         for (int i = 0; i < relevant_hidden.size(); i++) {
             String curr_name = relevant_hidden.get(i);
-            while(true){
+            while (true) {
                 Table f1 = null;
                 Table f2 = null;
                 for (int j = 0; j < factors.size(); j++) {
-                    Table curr_factor =factors.get(j);
-                    if(curr_factor.nodes_order.contains(curr_name)) {
+                    Table curr_factor = factors.get(j);
+                    if (curr_factor.nodes_order.contains(curr_name)) {
                         if (f1 == null) {
                             f1 = curr_factor;
-                        }
-                        else {
-                            f2 =curr_factor;
+                        } else {
+                            f2 = curr_factor;
                             break;
                         }
                     }
                 }
-                if(f1 != null && f2 != null){
+                if (f1 != null && f2 != null) {
                     factors.remove(f1);
                     factors.remove(f2);
-                    Table new_factor = join(f1,f2,hs);
+                    Table new_factor = join(f1, f2, hs);
                     factors.add(new_factor);
                     factors.sort(Table::compareTo);
-                }
-                else{
+                } else {
                     factors.remove(f1);
-                    Table new_factor = elimination(f1,curr_name);
+                    Table new_factor = elimination(f1, curr_name);
                     factors.add(new_factor);
                     factors.sort(Table::compareTo);
                     break;
                 }
             }
         }
-        while (factors.size() != 1){
+        while (factors.size() != 1) {
             Table f1 = factors.get(0);
             Table f2 = factors.get(1);
             factors.remove(f1);
             factors.remove(f2);
-            Table new_factor = join(f1,f2,hs);
+            Table new_factor = join(f1, f2, hs);
             factors.add(new_factor);
             factors.sort(Table::compareTo);
         }
+        /*
+        Finally, to get the answer to the query we need to normalize the values we got so far.
+        to do that we will sum the values of each outcome and divide the probability of the wanted
+        outcome in the sum.
+         */
         Table f = factors.get(0);
-        double sum = 0;// f.table.get("TTT")/(f.table.get("TTT")+f.table.get("FTT"));
-        ArrayList<Double>  x = new ArrayList<>(f.table.values());
+        double sum = 0;
+        ArrayList<Double> x = new ArrayList<>(f.table.values());
         for (int i = 0; i < x.size(); i++) {
-            sum+= x.get(i);
+            sum += x.get(i);
         }
         String wanted_value = names_values.get(q);
         double y = f.table.get(wanted_value);
-        double prob = y/sum;
+        double prob = y / sum;
         System.out.println(prob);
 
 
 //        System.out.println(hs.get("A").cpt_table>hs.get("B").cpt_table);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //        Table t = join(hs.get("B").cpt_table,hs.get("A").cpt_table,hs);
@@ -326,8 +337,14 @@ public class Network {
         return "";
     }
 
-
-
+    /**
+     * After splitting the query string we got, this function take apart each substring and
+     * extracting from it the name and the value of the query and the name and value of each evidence
+     * and then adding it to a Hashtable.
+     *
+     * @param x
+     * @param names_values
+     */
 
     private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values) {
         String[] q = x[0].split("=");
@@ -339,32 +356,44 @@ public class Network {
         }
     }
 
-    private void evidence_reduce(Table new_f, String curr_e, String value) {
-        int index = new_f.nodes_order.indexOf(curr_e);
-        Set<String> keys= new HashSet<>(new_f.table.keySet());
-        for (String key: keys){
-            if (!key.subSequence(index,index+value.length()).equals(value)){
-                new_f.table.remove(key);
-            }
-            else {
-                double prob = new_f.table.get(key);
-                new_f.table.remove(key);
-                String new_key = key.substring(0,index);
-                if(index+value.length()<key.length()){
-                    new_key += key.substring(index+value.length());
+    /**
+     * this function gets a CPT table that contains some evidence e in it, and remove all the irrelevant
+     * rows. that means it will remove all the row in which e != value.
+     *
+     * @param f     - factor, the CPT table we want to reduce.
+     * @param e     - the evidence we need to remove from this table.
+     * @param value - the only value of e we want to stay in this table.
+     */
+    private void evidence_reduce(Table f, String e, String value) {
+        int index = f.nodes_order.indexOf(e);
+        Set<String> keys = new HashSet<>(f.table.keySet());
+        for (String key : keys) {
+            if (!key.subSequence(index, index + value.length()).equals(value)) {
+                f.table.remove(key);
+            } else {
+                double prob = f.table.get(key);
+                f.table.remove(key);
+                String new_key = key.substring(0, index);
+                if (index + value.length() < key.length()) {
+                    new_key += key.substring(index + value.length());
                 }
-                new_f.table.put(new_key,prob);
+                f.table.put(new_key, prob);
             }
         }
-        new_f.nodes_order.remove(curr_e);
+        f.nodes_order.remove(e);
     }
 
-
-
-
-
-    private static Table join(Table f1, Table f2, Hashtable<String,MyNode> names_nodes) {
-        Table ans =  new Table();
+    /**
+     * this function create a new CPT table by joining 2 given CPT tables.
+     * the function join the tables by multiplying the row that contains the same value for the common variables.
+     *
+     * @param f1          - factor, first given table.
+     * @param f2          - factor, second given table.
+     * @param names_nodes - the Hashtable of the Network.
+     * @return - new factor, new CPT table.
+     */
+    private static Table join(Table f1, Table f2, Hashtable<String, MyNode> names_nodes) {
+        Table ans = new Table();
         ArrayList<String> common_nodes = new ArrayList();
         ArrayList<MyNode> nd_list = new ArrayList<>();
         for (int i = 0; i < f1.nodes_order.size(); i++) {
@@ -374,11 +403,10 @@ public class Network {
         }
         for (int i = 0; i < f2.nodes_order.size(); i++) {
             String curr_str = f2.nodes_order.get(i);
-            if(!ans.nodes_order.contains(curr_str)){
+            if (!ans.nodes_order.contains(curr_str)) {
                 ans.nodes_order.add(curr_str);
                 nd_list.add(names_nodes.get(curr_str));
-            }
-            else {
+            } else {
                 common_nodes.add(curr_str);
             }
         }
@@ -393,10 +421,10 @@ public class Network {
             for (int j = 0; j < f1.nodes_order.size(); j++) {
                 String curr_node_name = f1.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
-                String value = curr_str.charAt(index)+"";
+                String value = curr_str.charAt(index) + "";
                 MyNode curr_node = names_nodes.get(curr_node_name);
-                if(!curr_node.outcomes.contains(value)){
-                    value+=curr_str.charAt(index+1);
+                if (!curr_node.outcomes.contains(value)) {
+                    value += curr_str.charAt(index + 1);
                 }
                 f1_str += value;
             }
@@ -404,50 +432,57 @@ public class Network {
             for (int j = 0; j < f2.nodes_order.size(); j++) {
                 String curr_node_name = f2.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
-                String value = curr_str.charAt(index)+"";
+                String value = curr_str.charAt(index) + "";
                 MyNode curr_node = names_nodes.get(curr_node_name);
-                if(!curr_node.outcomes.contains(value)){
-                    value+=curr_str.charAt(index+1);
+                if (!curr_node.outcomes.contains(value)) {
+                    value += curr_str.charAt(index + 1);
                 }
                 f2_str += value;
             }
             double prob1 = f1.table.get(f1_str);
             double prob2 = f2.table.get(f2_str);
-            probs[i] = prob1*prob2;
+            probs[i] = prob1 * prob2;
         }
         System.out.println(ans.nodes_order);
         System.out.println(Arrays.toString(probs));
         for (int i = 0; i < probs.length; i++) {
             String curr_str = values_table.get(i);
             double curr_prob = probs[i];
-            ans.table.put(curr_str,curr_prob);
+            ans.table.put(curr_str, curr_prob);
         }
         System.out.println(ans);
         return ans;
     }
 
+    /**
+     * this function gets a CPT table and remove the variable "name" of it by summing the rows
+     * that contains the same value for the rest of the variables.
+     *
+     * @param f    - factor, the given CPT table.
+     * @param name - the name of the node in the Network we want to eliminate from this table.
+     * @return - new factor, new CPT table.
+     */
     private static Table elimination(Table f, String name) {
         Table ans = new Table();
         for (int i = 0; i < f.nodes_order.size(); i++) {
             String curr_name = f.nodes_order.get(i);
-            if(!curr_name.equals(name)){
+            if (!curr_name.equals(name)) {
                 ans.nodes_order.add(curr_name);
             }
         }
         int index = f.nodes_order.indexOf(name);
         Set<String> curr_keys = new HashSet<>(f.table.keySet());
-        for (String key : curr_keys){
-            String new_key = key.substring(0,index);
-            if(index+1 != key.length()){
-                new_key += key.substring(index+1);
+        for (String key : curr_keys) {
+            String new_key = key.substring(0, index);
+            if (index + 1 != key.length()) {
+                new_key += key.substring(index + 1);
             }
             Double prob = f.table.get(key);
-            if (ans.table.containsKey(new_key)){
+            if (ans.table.containsKey(new_key)) {
                 double new_prob = prob + ans.table.get(new_key);
-                ans.table.put(new_key,new_prob);
-            }
-            else{
-                ans.table.put(new_key,prob);
+                ans.table.put(new_key, new_prob);
+            } else {
+                ans.table.put(new_key, prob);
             }
         }
         System.out.println(ans);
@@ -455,14 +490,10 @@ public class Network {
     }
 
 
-        @Override
-        public String toString () {
-            return "Network{\n" +
-                    nodes +
-                    '}';
-        }
-
-        public static void main (String[]args){
-
-        }
+    @Override
+    public String toString() {
+        return "Network{\n" +
+                nodes +
+                '}';
     }
+}

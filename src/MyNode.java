@@ -1,6 +1,14 @@
 import java.util.ArrayList;
 
+/**
+ * this class represent a node in a Bayesian Network.
+ * it holds a string representing the name of this node, an ArrayList representing the outcomes this node can get,
+ * an ArrayList that contains the parents of this node, an ArrayList that contains the children of this node,
+ * and a Table that represent the CPT table of this node.
+ */
+
 public class MyNode {
+
     public String name;
     public ArrayList<String> outcomes;
     public ArrayList<MyNode> parents;

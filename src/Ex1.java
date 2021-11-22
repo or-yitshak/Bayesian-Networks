@@ -31,6 +31,14 @@ public class Ex1 {
 
     }
 
+    /**
+     * this function go over the "input.txt" file extract the information it contains.
+     *
+     * @param file
+     * @param net
+     * @param queries
+     */
+
     public static void readTxtFile(String file, Network net, ArrayList<String> queries) {
         try {
             File myObj = new File(file);
@@ -46,6 +54,14 @@ public class Ex1 {
             e.printStackTrace();
         }
     }
+
+    /**
+     * this function go over the aml file given in "input.txt" file, extracting the data it contains
+     * and initialize the Network object with this data.
+     *
+     * @param xml_name
+     * @param net
+     */
 
     private static void myReadXmlFile(String xml_name, Network net) {
         try {
@@ -67,7 +83,7 @@ public class Ex1 {
                     }
                     net.nodes.add(nd);
                     net.nodes_names.add(name);
-                    net.hs.put(name,nd);
+                    net.hs.put(name, nd);
                 }
                 if (data.contains("<FOR>")) {
                     String name = getData(data);
@@ -82,7 +98,7 @@ public class Ex1 {
                     }
                     String str = getData(data);
                     String[] str_table = str.split(" ");
-                    Table t = new Table(str_table,curr_nd);
+                    Table t = new Table(str_table, curr_nd);
                     curr_nd.cpt_table = t;
                 }
             }
@@ -106,7 +122,6 @@ public class Ex1 {
         String ans = data.substring(start, end);
         return ans;
     }
-
 
 
 //

@@ -1,26 +1,30 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 
-public class Table implements Comparable<Table>{
+/**
+ * this class represent a CPT table. it holds in it an ArrayList that represent the order of the columns
+ * of the table, and a Hashtable such that the key is a String represent a row in the table and the
+ * value is the probability of this row.
+ */
+public class Table implements Comparable<Table> {
     ArrayList<String> nodes_order;
-    Hashtable<String,Double> table;
-//    ArrayList<String> values_table; //row as the length of the double list and cols as the number of nodes_in
-    public Table(){
+    Hashtable<String, Double> table;
+
+    public Table() {
         table = new Hashtable<>();
         nodes_order = new ArrayList<>();
     }
 
-    public Table(Table t){
+    public Table(Table t) {
         this.nodes_order = new ArrayList<>(t.nodes_order);
         this.table = new Hashtable<>(t.table);
     }
 
 
-    public Table(String[] nums ,MyNode nd){
+    public Table(String[] nums, MyNode nd) {
         nodes_order = new ArrayList<>();
-        for (int i = 0; i <nd.parents.size(); i++) {
-            nodes_order.add(nd.parents.get(i).name) ;
+        for (int i = 0; i < nd.parents.size(); i++) {
+            nodes_order.add(nd.parents.get(i).name);
         }
         nodes_order.add(nd.name);
 
@@ -30,7 +34,7 @@ public class Table implements Comparable<Table>{
         Combinations(nd_list, values_table);
 
         double[] probs = new double[nums.length];
-        for (int i = 0; i < nums.length; i ++) {
+        for (int i = 0; i < nums.length; i++) {
             probs[i] = Double.parseDouble(nums[i]);
         }
 
@@ -38,27 +42,42 @@ public class Table implements Comparable<Table>{
         for (int i = 0; i < probs.length; i++) {
             String curr_str = values_table.get(i);
             double curr_prob = probs[i];
-            table.put(curr_str,curr_prob);
+            table.put(curr_str, curr_prob);
         }
     }
 
-    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String> t){
-        String curr="";// = new String[nodes.size()];
-        recAddAllCombinations(nodes, curr , 0, t);
+    /**
+     * this function calls the recursive function recAddAllCombinations.
+     *
+     * @param nodes
+     * @param t
+     */
+    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String> t) {
+        String curr = "";
+        recAddAllCombinations(nodes, curr, 0, t);
     }
 
-    public static void recAddAllCombinations(ArrayList<MyNode> nodes, String curr , int i ,ArrayList<String> t) {
-        if(i==nodes.size()) {
+    /**
+     * this function create all the rows of this table. that means it will go over the columns (node_order),
+     * and for each one it will go over outcomes it can get and then will add it to a string that eventually will
+     * represent a row in the table.
+     *
+     * @param nodes - a list of node that appears in this table.
+     * @param curr  - the string that will eventually represent a row in the table.
+     * @param i     - counter.
+     * @param t     - the list that contains all the rows.
+     */
+    public static void recAddAllCombinations(ArrayList<MyNode> nodes, String curr, int i, ArrayList<String> t) {
+        if (i == nodes.size()) {
             System.out.println(curr);
             t.add(curr);
-        }
-        else{
-            MyNode curr_node= nodes.get(i);
+        } else {
+            MyNode curr_node = nodes.get(i);
             int outs = curr_node.outcomes.size();
             for (int j = 0; j < outs; j++) {
                 curr += curr_node.outcomes.get(j);
-                recAddAllCombinations(nodes, curr, i+1, t);
-                curr = curr.substring(0,curr.length()-curr_node.outcomes.get(j).length());
+                recAddAllCombinations(nodes, curr, i + 1, t);
+                curr = curr.substring(0, curr.length() - curr_node.outcomes.get(j).length());
             }
         }
     }
@@ -71,16 +90,23 @@ public class Table implements Comparable<Table>{
                 '}';
     }
 
+    /**
+     * At first this function will compare 2 tables by their size (the size of the Hashmap),
+     * if they are equal it will compare them by the ASCII value of their variables names.
+     *
+     * @param t
+     * @return
+     */
     @Override
     public int compareTo(Table t) {
         int ans = this.table.size() - t.table.size();
-        if(ans == 0){
+        if (ans == 0) {
             int sum1 = 0;
             for (int i = 0; i < this.nodes_order.size(); i++) {
                 String curr_str = this.nodes_order.get(i);
                 for (int j = 0; j < curr_str.length(); j++) {
                     char c = curr_str.charAt(j);
-                    int value = (int)(c);
+                    int value = (int) (c);
                     sum1 += value;
                 }
             }
@@ -89,28 +115,22 @@ public class Table implements Comparable<Table>{
                 String curr_str = t.nodes_order.get(i);
                 for (int j = 0; j < curr_str.length(); j++) {
                     char c = curr_str.charAt(j);
-                    int value = (int)(c);
+                    int value = (int) (c);
                     sum2 += value;
                 }
             }
-            if(sum1==sum2){return 0;}
-            if(sum1>sum2){return 1;}
-            else {return -1;}
+            if (sum1 == sum2) {
+                return 0;
+            }
+            if (sum1 > sum2) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } else if (ans > 0) {
+            return 1;
+        } else {
+            return -1;
         }
-        else if(ans>0){return 1;}
-        else {return -1;}
     }
-//    @Override
-//    public String toString() {
-////        String str = "[";
-////        for (int i = 0; i < table.size()-1; i++) {
-////            str += Arrays.toString(table.get(i))+", ";
-////        }
-////        str += Arrays.toString(table.get(table.size()-1))+"]";
-//        return "Table{" +"\n"+
-//                "nodes_in=" + Arrays.toString(nodes_in) +"\n"+
-//                ", table=" + values_table +"\n"+
-//                ", probs=" + Arrays.toString(probs) +"\n"+
-//                '}';
-//    }
 }
