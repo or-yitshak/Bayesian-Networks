@@ -266,6 +266,9 @@ public class Network {
                     evidenceReduce(new_f, curr_e, names_values.get(curr_e));
                 }
             }
+            if(new_f.nodes_order.size()==0){
+                continue;
+            }
             factors.add(new_f);
         }
         /*
