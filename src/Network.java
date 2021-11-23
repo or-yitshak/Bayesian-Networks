@@ -318,12 +318,12 @@ public class Network {
         outcome in the sum.
          */
         Table f = factors.get(0);
-        double sum = 0;
         ArrayList<Double> x = new ArrayList<>(f.table.values());
-        for (int i = 0; i < x.size(); i++) {
+        double sum = x.get(0);
+        for (int i = 1; i < x.size(); i++) {
             sum += x.get(i);
+            add_counter.addAndGet(1);
         }
-        add_counter.addAndGet(x.size() - 1);
         String wanted_value = names_values.get(q);
         double y = f.table.get(wanted_value);
         double prob = y / sum;
@@ -445,7 +445,7 @@ public class Network {
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
                 String value = curr_str.charAt(index) + "";
                 MyNode curr_node = names_nodes.get(curr_node_name);
-                if (!curr_node.outcomes.contains(value)) {
+                while (!curr_node.outcomes.contains(value)) {
                     value += curr_str.charAt(index + 1);
                 }
                 f1_str += value;
@@ -456,7 +456,7 @@ public class Network {
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
                 String value = curr_str.charAt(index) + "";
                 MyNode curr_node = names_nodes.get(curr_node_name);
-                if (!curr_node.outcomes.contains(value)) {
+                while (!curr_node.outcomes.contains(value)) {
                     value += curr_str.charAt(index + 1);
                 }
                 f2_str += value;
