@@ -1,4 +1,3 @@
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -222,15 +221,31 @@ public class Network {
         bayes_ball function on it. if the answer will be true we will omit the curr variable because he is
         not relevant to our calculation.
          */
+        ArrayList<MyNode> q_e_nodes = new ArrayList<>();
+        q_e_nodes.add(q_nd);
+        for (int i = 0; i < e.size(); i++) {
+            String e_str = e.get(i);
+            MyNode e_node = hs.get(e_str);
+            q_e_nodes.add(e_node);
+        }
         ArrayList<String> relevant_hidden = new ArrayList<>();
         for (int i = 0; i < hidden.length; i++) {
             String new_query = q + "-" + hidden[i] + "|" + querys_subs[1];
             System.out.println(new_query);
             System.out.println(this.bayes_ball(new_query));
-            if (!this.bayes_ball(new_query)) {
+            if (isAncestor(q_e_nodes, hidden[i]) && !this.bayes_ball(new_query)) {
                 relevant_hidden.add(hidden[i]);
             }
         }
+////        int len = relevant_hidden
+//        for (int i = 0; i < relevant_hidden.size(); i++) {
+//            String curr_hidden = relevant_hidden.get(i);
+//            MyNode curr_hidden_nd = hs.get(curr_hidden);
+//            if(curr_hidden_nd.children.size() == 0){
+//                relevant_hidden.remove(i);
+//            }
+//        }
+
 
         ArrayList<String> relevant = new ArrayList<>(relevant_hidden);
         for (int i = 0; i < e.size(); i++) {
@@ -248,7 +263,7 @@ public class Network {
             for (int j = 0; j < e.size(); j++) {
                 String curr_e = e.get(j);
                 if (curr_nd.cpt_table.nodes_order.contains(curr_e)) {
-                    evidence_reduce(new_f, curr_e, names_values.get(curr_e));
+                    evidenceReduce(new_f, curr_e, names_values.get(curr_e));
                 }
             }
             factors.add(new_f);
@@ -352,6 +367,33 @@ public class Network {
     }
 
     /**
+     * this function check if hidden node is ancestor of the query or evidences nodes.
+     *
+     * @param q_e_nodes - list of the query and evidences nodes.
+     * @param hidden    - the name of the hidden node we want to check.
+     * @return
+     */
+
+    private boolean isAncestor(ArrayList<MyNode> q_e_nodes, String hidden) {
+        for (int i = 0; i < q_e_nodes.size(); i++) {
+            MyNode curr = q_e_nodes.get(i);
+            Queue<MyNode> q = new LinkedList<>();
+            q.add(curr);
+            while (!q.isEmpty()) {
+                MyNode curr_nd = q.remove();
+                for (int j = 0; j < curr_nd.parents.size(); j++) {
+                    MyNode parent = curr_nd.parents.get(j);
+                    if (parent.name.equals(hidden)) {
+                        return true;
+                    }
+                    q.add(parent);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * this function gets a CPT table that contains some evidence e in it, and remove all the irrelevant
      * rows. that means it will remove all the row in which e != value.
      *
@@ -359,7 +401,7 @@ public class Network {
      * @param e     - the evidence we need to remove from this table.
      * @param value - the only value of e we want to stay in this table.
      */
-    private void evidence_reduce(Table f, String e, String value) {
+    private void evidenceReduce(Table f, String e, String value) {
         int index = f.nodes_order.indexOf(e);
         Set<String> keys = new HashSet<>(f.table.keySet());
         for (String key : keys) {
