@@ -216,7 +216,9 @@ public class Network {
             }
         }
         /*
-        next we will go over the hidden nodes and check if they are conditionally independent in the query node with the
+        next we will go over the hidden nodes and check if they are ancestors of the query or the evidences nodes. if
+        they are not then they will be irrelevant, and we can get rid of them.
+        then we will check if they are conditionally independent in the query node with the
         given evidence. we will do it by creating new query(in the style that given in the input.txt) and use
         bayes_ball function on it. if the answer will be true we will omit the curr variable because he is
         not relevant to our calculation.
@@ -237,15 +239,6 @@ public class Network {
                 relevant_hidden.add(hidden[i]);
             }
         }
-////        int len = relevant_hidden
-//        for (int i = 0; i < relevant_hidden.size(); i++) {
-//            String curr_hidden = relevant_hidden.get(i);
-//            MyNode curr_hidden_nd = hs.get(curr_hidden);
-//            if(curr_hidden_nd.children.size() == 0){
-//                relevant_hidden.remove(i);
-//            }
-//        }
-
 
         ArrayList<String> relevant = new ArrayList<>(relevant_hidden);
         for (int i = 0; i < e.size(); i++) {
@@ -274,17 +267,6 @@ public class Network {
         /*
         the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
          */
-
-//        for (int i = 0; i < relevant.size(); i++) {
-//            String curr_name = relevant.get(i);
-//            MyNode curr_nd = hs.get(curr_name);
-//            factors.add(curr_nd.cpt_table);
-//        }
-//        for (int i = 0; i < e.size(); i++) {
-//            String curr_name = e.get(i);
-//            MyNode curr_nd = hs.get(curr_name);
-//            factors.add(curr_nd.cpt_table);
-//        }
         factors.add(q_nd.cpt_table);
         factors.sort(Table::compareTo);
         AtomicInteger mul_counter = new AtomicInteger();

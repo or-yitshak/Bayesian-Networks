@@ -1,12 +1,7 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Ex1 {
@@ -17,16 +12,36 @@ public class Ex1 {
         readTxtFile("input.txt", net, queries);
         System.out.println(net);
         System.out.println(queries);
+        String[] answers = new String[queries.size()];
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
             if (query.charAt(0) == 'P') {
-                net.variableElimination(query);
+                answers[i] = net.variableElimination(query);
             } else {
+                if (net.bayes_ball(query)) {
+                    answers[i] = "yes";
+                } else {
+                    answers[i] = "no";
+                }
                 System.out.println(net.bayes_ball(query));
             }
         }
         for (int i = 0; i < net.nodes.size(); i++) {
             System.out.println(net.nodes.get(i).cpt_table);
+        }
+        try {
+            FileWriter myWriter = new FileWriter("MyOutput.txt");
+            for (int i = 0; i < answers.length; i++) {
+                if (i < answers.length - 1) {
+                    myWriter.write(answers[i] + "\n");
+                } else {
+                    myWriter.write(answers[i]);
+                }
+
+            }
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
@@ -108,6 +123,13 @@ public class Ex1 {
         }
     }
 
+    /**
+     * this function extract the data given in some line in the xml file.
+     *
+     * @param data - string that contains data in the form "<TYPE>data</TYPE>"
+     * @return
+     */
+
     private static String getData(String data) {
         int start, end;
         int i = 0;
@@ -122,100 +144,4 @@ public class Ex1 {
         String ans = data.substring(start, end);
         return ans;
     }
-
-
-//
-//    private static void readXmlFile(String data) {
-//
-//        try {
-////creating a constructor of file class and parsing an XML file
-//            File file = new File(data);
-////an instance of factory that gives a document builder
-//            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-////an instance of builder to parse the specified xml file
-//            DocumentBuilder db = dbf.newDocumentBuilder();
-//            Document doc = db.parse(file);
-//            doc.getDocumentElement().normalize();
-//            System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-//            NodeList nodeList = doc.getElementsByTagName("student");
-//// nodeList is not iterable, so we are using for loop
-//            for (int itr = 0; itr < nodeList.getLength(); itr++) {
-//                Node node = nodeList.item(itr);
-//                System.out.println("\nNode Name :" + node.getNodeName());
-//                if (node.getNodeType() == Node.ELEMENT_NODE) {
-////                    Element eElement = (Element) node;
-////                    System.out.println("Student id: "+ eElement.getElementsByTagName("id").item(0).getTextContent());
-////                    System.out.println("First Name: "+ eElement.getElementsByTagName("firstname").item(0).getTextContent());
-////                    System.out.println("Last Name: "+ eElement.getElementsByTagName("lastname").item(0).getTextContent());
-////                    System.out.println("Subject: "+ eElement.getElementsByTagName("subject").item(0).getTextContent());
-////                    System.out.println("Marks: "+ eElement.getElementsByTagName("marks").item(0).getTextContent());
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-
-//        // Instantiate the Factory
-//        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//
-//        try {
-//
-//            // optional, but recommended
-//            // process XML securely, avoid attacks like XML External Entities (XXE)
-//            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-//
-//            // parse XML file
-//            DocumentBuilder db = dbf.newDocumentBuilder();
-//
-//            Document doc = db.parse(new File(data));
-//
-//            // optional, but recommended
-//            // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-//            doc.getDocumentElement().normalize();
-//
-//            System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
-//            System.out.println("------");
-//
-//            // get <staff>
-//            NodeList list = doc.getElementsByTagName("staff");
-//
-//            for (int temp = 0; temp < list.getLength(); temp++) {
-//
-//                Node node = list.item(temp);
-//
-//                if (node.getNodeType() == Node.ELEMENT_NODE) {
-//
-//                    Element element = (Element) node;
-//
-//                    // get staff's attribute
-//                    String id = element.getAttribute("id");
-//
-//                    // get text
-//                    String firstname = element.getElementsByTagName("firstname").item(0).getTextContent();
-//                    String lastname = element.getElementsByTagName("lastname").item(0).getTextContent();
-//                    String nickname = element.getElementsByTagName("nickname").item(0).getTextContent();
-//
-//                    NodeList salaryNodeList = element.getElementsByTagName("salary");
-//                    String salary = salaryNodeList.item(0).getTextContent();
-//
-//                    // get salary's attribute
-//                    String currency = salaryNodeList.item(0).getAttributes().getNamedItem("currency").getTextContent();
-//
-//                    System.out.println("Current Element :" + node.getNodeName());
-//                    System.out.println("Staff Id : " + id);
-//                    System.out.println("First Name : " + firstname);
-//                    System.out.println("Last Name : " + lastname);
-//                    System.out.println("Nick Name : " + nickname);
-//                    System.out.printf("Salary [Currency] : %,.2f [%s]%n%n", Float.parseFloat(salary), currency);
-//
-//                }
-//            }
-//
-//        } catch (ParserConfigurationException | SAXException | IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
 }
