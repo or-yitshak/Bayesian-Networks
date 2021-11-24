@@ -187,13 +187,15 @@ public class Network {
         querys_subs = str.split("\\|");//[B=T, J=T,M=T] 2 strings
         Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
         getNamesAndValues(querys_subs, names_values);
-        String q = "";
-        for (int i = 0; i < querys_subs[0].length(); i++) {
-            if (querys_subs[0].charAt(i) == '=') {
-                break;
-            }
-            q += querys_subs[0].charAt(i);
-        }
+        String q = querys_subs[0].split("=")[0];
+        String q_value = querys_subs[0].split("=")[1];
+        names_values.put(q,q_value);
+//        for (int i = 0; i < querys_subs[0].length(); i++) {
+//            if (querys_subs[0].charAt(i) == '=') {
+//                break;
+//            }
+//            q += querys_subs[0].charAt(i);
+//        }
         ArrayList<String> e = getGivens(querys_subs[1]);
         /*
         at first, we will check if the answer to this query is already given in one of the cpt_tables.
@@ -211,13 +213,15 @@ public class Network {
         if (in_table) {
             Table t = q_nd.cpt_table;
             if (t.nodes_order.size() - 1 == e.size()) {
-                String s = "";
+//                String s = "";
+                ArrayList<String> s = new ArrayList<>();
                 for (int j = 0; j < t.nodes_order.size(); j++) {
-                    s += names_values.get(t.nodes_order.get(j));
+                    s.set(j,names_values.get(t.nodes_order.get(j)));
+//                    s += names_values.get(t.nodes_order.get(j));
                 }
                 double prob = t.table.get(s);
                 String ans = prob + ",0,0";
-//                System.out.println(ans);
+                System.out.println(ans);
                 return ans;
             }
         }
@@ -237,12 +241,16 @@ public class Network {
             q_e_nodes.add(e_node);
         }
         ArrayList<String> relevant_hidden = new ArrayList<>();
+        ArrayList<String> irrelevant_hidden = new ArrayList<>();
         for (int i = 0; i < hidden.length; i++) {
             String new_query = q + "-" + hidden[i] + "|" + querys_subs[1];
 //            System.out.println(new_query);
 //            System.out.println(this.bayes_ball(new_query));
             if (isAncestor(q_e_nodes, hidden[i]) && !this.bayes_ball(new_query)) {
                 relevant_hidden.add(hidden[i]);
+            }
+            else {
+                irrelevant_hidden.add(hidden[i]);
             }
         }
 
@@ -265,7 +273,13 @@ public class Network {
                     evidenceReduce(new_f, curr_e, names_values.get(curr_e));
                 }
             }
-            if(new_f.nodes_order.size()==0){
+            boolean o =true;
+            for (int j = 0; j < new_f.nodes_order.size(); j++) {
+                if(!irrelevant_hidden.contains(new_f.nodes_order.get(j))){
+                    o =false;
+                }
+            }
+            if(new_f.nodes_order.size()==0 || o){
                 continue;
             }
             factors.add(new_f);
@@ -331,10 +345,12 @@ public class Network {
             add_counter.addAndGet(1);
         }
         String wanted_value = names_values.get(q);
-        double y = f.table.get(wanted_value);
+        ArrayList<String> tmp = new ArrayList<>();
+        tmp.add(wanted_value);
+        double y = f.table.get(tmp);
         double prob = y / sum;
         String ans = String.format("%.5g", prob) + "," + add_counter + "," + mul_counter;
-//        System.out.println(ans);
+        System.out.println(ans);
         return ans;
     }
 
@@ -348,8 +364,8 @@ public class Network {
      */
 
     private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values) {
-        String[] q = x[0].split("=");
-        names_values.put(q[0], q[1]);
+//        String[] q = x[0].split("=");
+//        names_values.put(q[0], q[1]);
         String[] e = x[1].split(",");
         for (int i = 0; i < e.length; i++) {
             String[] curr_e = e[i].split("=");
@@ -394,17 +410,18 @@ public class Network {
      */
     private void evidenceReduce(Table f, String e, String value) {
         int index = f.nodes_order.indexOf(e);
-        Set<String> keys = new HashSet<>(f.table.keySet());
-        for (String key : keys) {
-            if (!key.subSequence(index, index + value.length()).equals(value)) {
+        Set<ArrayList<String>> keys = new HashSet<>(f.table.keySet());
+        for (ArrayList<String> key : keys) {
+            if (!key.get(index).equals(value)) {
                 f.table.remove(key);
             } else {
                 double prob = f.table.get(key);
                 f.table.remove(key);
-                String new_key = key.substring(0, index);
-                if (index + value.length() < key.length()) {
-                    new_key += key.substring(index + value.length());
-                }
+                key.remove(index);
+                ArrayList<String> new_key = new ArrayList<>(key);
+//                if (index + value.length() < key.length()) {
+//                    new_key += key.substring(index + value.length());
+//                }
                 f.table.put(new_key, prob);
             }
         }
@@ -438,48 +455,50 @@ public class Network {
                 common_nodes.add(curr_str);
             }
         }
-        ArrayList<String> values_table = new ArrayList<>();
+        ArrayList<ArrayList<String>> values_table = new ArrayList<>();
         Table.Combinations(nd_list, values_table);
-//        System.out.println(values_table);
+        System.out.println(values_table);
         double[] probs = new double[values_table.size()];
 
         for (int i = 0; i < values_table.size(); i++) {
-            String curr_str = values_table.get(i);
-            String f1_str = "";
+            ArrayList<String> curr_row = values_table.get(i);
+//            String curr_str = values_table.get(i);
+            ArrayList<String> f1_row = new ArrayList<>();
             for (int j = 0; j < f1.nodes_order.size(); j++) {
                 String curr_node_name = f1.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
-                String value = curr_str.charAt(index) + "";
-                MyNode curr_node = names_nodes.get(curr_node_name);
-                while (!curr_node.outcomes.contains(value)) {
-                    value += curr_str.charAt(index + 1);
-                }
-                f1_str += value;
+                String value = curr_row.get(index);
+
+//                MyNode curr_node = names_nodes.get(curr_node_name);
+//                while (!curr_node.outcomes.contains(value)) {
+//                    value += curr_str.charAt(index + 1);
+//                }
+                f1_row.add(value);
             }
-            String f2_str = "";
+            ArrayList<String> f2_row = new ArrayList<>();
             for (int j = 0; j < f2.nodes_order.size(); j++) {
                 String curr_node_name = f2.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
-                String value = curr_str.charAt(index) + "";
-                MyNode curr_node = names_nodes.get(curr_node_name);
-                while (!curr_node.outcomes.contains(value)) {
-                    value += curr_str.charAt(index + 1);
-                }
-                f2_str += value;
+                String value = curr_row.get(index) ;
+//                MyNode curr_node = names_nodes.get(curr_node_name);
+//                while (!curr_node.outcomes.contains(value)) {
+//                    value += curr_row.charAt(index + 1);
+//                }
+                f2_row.add(value);
             }
-            double prob1 = f1.table.get(f1_str);
-            double prob2 = f2.table.get(f2_str);
+            double prob1 = f1.table.get(f1_row);
+            double prob2 = f2.table.get(f2_row);
             probs[i] = prob1 * prob2;
             mul_counter.addAndGet(1);
         }
-//        System.out.println(ans.nodes_order);
-//        System.out.println(Arrays.toString(probs));
+        System.out.println(ans.nodes_order);
+        System.out.println(Arrays.toString(probs));
         for (int i = 0; i < probs.length; i++) {
-            String curr_str = values_table.get(i);
+            ArrayList<String> curr_str = values_table.get(i);
             double curr_prob = probs[i];
             ans.table.put(curr_str, curr_prob);
         }
-//        System.out.println(ans);
+        System.out.println(ans);
         return ans;
     }
 
@@ -500,12 +519,13 @@ public class Network {
             }
         }
         int index = f.nodes_order.indexOf(name);
-        Set<String> curr_keys = new HashSet<>(f.table.keySet());
-        for (String key : curr_keys) {
-            String new_key = key.substring(0, index);
-            if (index + 1 != key.length()) {
-                new_key += key.substring(index + 1);
-            }
+        Set<ArrayList<String>> curr_keys = new HashSet<>(f.table.keySet());
+        for (ArrayList<String> key : curr_keys) {
+            ArrayList<String> new_key = new ArrayList<>(key);
+            new_key.remove(index);
+//            if (index + 1 != key.length()) {
+//                new_key += key.substring(index + 1);
+//            }
             Double prob = f.table.get(key);
             if (ans.table.containsKey(new_key)) {
                 double new_prob = prob + ans.table.get(new_key);
@@ -515,7 +535,7 @@ public class Network {
                 ans.table.put(new_key, prob);
             }
         }
-//        System.out.println(ans);
+        System.out.println(ans);
         return ans;
     }
 

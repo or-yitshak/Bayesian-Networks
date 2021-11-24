@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * this class represent a CPT table. it holds in it an ArrayList that represent the order of the columns
@@ -8,8 +10,8 @@ import java.util.Hashtable;
  */
 public class Table implements Comparable<Table> {
     ArrayList<String> nodes_order;
-    Hashtable<String, Double> table;
-
+//    Hashtable<String, Double> table;//Strings need to be changed to ArrayList that means that it should be Hashtable<ArrayList<String>, Double>
+    Hashtable<ArrayList<String>, Double> table;
     public Table() {
         table = new Hashtable<>();
         nodes_order = new ArrayList<>();
@@ -17,7 +19,13 @@ public class Table implements Comparable<Table> {
 
     public Table(Table t) {
         this.nodes_order = new ArrayList<>(t.nodes_order);
-        this.table = new Hashtable<>(t.table);
+        this.table = new Hashtable<>();
+        Set<ArrayList<String>> keys = new HashSet<>(t.table.keySet());
+        for (ArrayList<String> key : keys) {
+            double prob = t.table.get(key);
+            ArrayList<String> new_key = new ArrayList<>(key);
+            this.table.put(new_key,prob);
+        }
     }
 
 
@@ -28,7 +36,8 @@ public class Table implements Comparable<Table> {
         }
         nodes_order.add(nd.name);
 
-        ArrayList<String> values_table = new ArrayList<>();
+//        ArrayList<String> values_table = new ArrayList<>();
+        ArrayList<ArrayList<String>> values_table = new ArrayList<>();
         ArrayList<MyNode> nd_list = new ArrayList<>(nd.parents);
         nd_list.add(nd);
         Combinations(nd_list, values_table);
@@ -40,7 +49,7 @@ public class Table implements Comparable<Table> {
 
         table = new Hashtable<>();
         for (int i = 0; i < probs.length; i++) {
-            String curr_str = values_table.get(i);
+            ArrayList<String> curr_str = values_table.get(i);
             double curr_prob = probs[i];
             table.put(curr_str, curr_prob);
         }
@@ -52,8 +61,9 @@ public class Table implements Comparable<Table> {
      * @param nodes
      * @param t
      */
-    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<String> t) {
-        String curr = "";
+    public static void Combinations(ArrayList<MyNode> nodes, ArrayList<ArrayList<String>> t) {
+//        String curr = "";
+        ArrayList<String> curr = new ArrayList<>(nodes.size());
         recAddAllCombinations(nodes, curr, 0, t);
     }
 
@@ -67,17 +77,21 @@ public class Table implements Comparable<Table> {
      * @param i     - counter.
      * @param t     - the list that contains all the rows.
      */
-    public static void recAddAllCombinations(ArrayList<MyNode> nodes, String curr, int i, ArrayList<String> t) {
+    public static void recAddAllCombinations(ArrayList<MyNode> nodes, ArrayList<String> curr, int i, ArrayList<ArrayList<String>> t) {
         if (i == nodes.size()) {
             System.out.println(curr);
-            t.add(curr);
+            ArrayList<String> new_row = new ArrayList<>(curr);
+            t.add(new_row);
         } else {
             MyNode curr_node = nodes.get(i);
             int outs = curr_node.outcomes.size();
             for (int j = 0; j < outs; j++) {
-                curr += curr_node.outcomes.get(j);
+                curr.add(curr_node.outcomes.get(j));
                 recAddAllCombinations(nodes, curr, i + 1, t);
-                curr = curr.substring(0, curr.length() - curr_node.outcomes.get(j).length());
+                curr.remove(i);
+//                curr += curr_node.outcomes.get(j);
+//                recAddAllCombinations(nodes, curr, i + 1, t);
+//                curr = curr.substring(0, curr.length() - curr_node.outcomes.get(j).length());
             }
         }
     }
