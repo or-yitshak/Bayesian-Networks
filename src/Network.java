@@ -187,7 +187,13 @@ public class Network {
         querys_subs = str.split("\\|");//[B=T, J=T,M=T] 2 strings
         Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
         getNamesAndValues(querys_subs, names_values);
-        String q = querys_subs[0].substring(0, 1);
+        String q = "";
+        for (int i = 0; i < querys_subs[0].length(); i++) {
+            if (querys_subs[0].charAt(i) == '=') {
+                break;
+            }
+            q += querys_subs[0].charAt(i);
+        }
         ArrayList<String> e = getGivens(querys_subs[1]);
         /*
         at first, we will check if the answer to this query is already given in one of the cpt_tables.
@@ -211,7 +217,7 @@ public class Network {
                 }
                 double prob = t.table.get(s);
                 String ans = prob + ",0,0";
-                System.out.println(ans);
+//                System.out.println(ans);
                 return ans;
             }
         }
@@ -233,8 +239,8 @@ public class Network {
         ArrayList<String> relevant_hidden = new ArrayList<>();
         for (int i = 0; i < hidden.length; i++) {
             String new_query = q + "-" + hidden[i] + "|" + querys_subs[1];
-            System.out.println(new_query);
-            System.out.println(this.bayes_ball(new_query));
+//            System.out.println(new_query);
+//            System.out.println(this.bayes_ball(new_query));
             if (isAncestor(q_e_nodes, hidden[i]) && !this.bayes_ball(new_query)) {
                 relevant_hidden.add(hidden[i]);
             }
@@ -271,7 +277,7 @@ public class Network {
         factors.sort(Table::compareTo);
         AtomicInteger mul_counter = new AtomicInteger();
         AtomicInteger add_counter = new AtomicInteger();
-        System.out.println(factors);
+//        System.out.println(factors);
         for (int i = 0; i < relevant_hidden.size(); i++) {
             String curr_name = relevant_hidden.get(i);
             while (true) {
@@ -328,7 +334,7 @@ public class Network {
         double y = f.table.get(wanted_value);
         double prob = y / sum;
         String ans = String.format("%.5g", prob) + "," + add_counter + "," + mul_counter;
-        System.out.println(ans);
+//        System.out.println(ans);
         return ans;
     }
 
@@ -434,7 +440,7 @@ public class Network {
         }
         ArrayList<String> values_table = new ArrayList<>();
         Table.Combinations(nd_list, values_table);
-        System.out.println(values_table);
+//        System.out.println(values_table);
         double[] probs = new double[values_table.size()];
 
         for (int i = 0; i < values_table.size(); i++) {
@@ -466,14 +472,14 @@ public class Network {
             probs[i] = prob1 * prob2;
             mul_counter.addAndGet(1);
         }
-        System.out.println(ans.nodes_order);
-        System.out.println(Arrays.toString(probs));
+//        System.out.println(ans.nodes_order);
+//        System.out.println(Arrays.toString(probs));
         for (int i = 0; i < probs.length; i++) {
             String curr_str = values_table.get(i);
             double curr_prob = probs[i];
             ans.table.put(curr_str, curr_prob);
         }
-        System.out.println(ans);
+//        System.out.println(ans);
         return ans;
     }
 
@@ -509,7 +515,7 @@ public class Network {
                 ans.table.put(new_key, prob);
             }
         }
-        System.out.println(ans);
+//        System.out.println(ans);
         return ans;
     }
 

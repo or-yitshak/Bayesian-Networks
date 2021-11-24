@@ -9,9 +9,9 @@ public class Ex1 {
     public static void main(String[] args) {
         Network net = new Network();
         ArrayList<String> queries = new ArrayList<>();
-        readTxtFile("input.txt", net, queries);
-        System.out.println(net);
-        System.out.println(queries);
+        readTxtFile("input2.txt", net, queries);
+//        System.out.println(net);
+//        System.out.println(queries);
         String[] answers = new String[queries.size()];
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
@@ -23,14 +23,14 @@ public class Ex1 {
                 } else {
                     answers[i] = "no";
                 }
-                System.out.println(net.bayes_ball(query));
+//                System.out.println(net.bayes_ball(query));
             }
         }
-        for (int i = 0; i < net.nodes.size(); i++) {
-            System.out.println(net.nodes.get(i).cpt_table);
-        }
+//        for (int i = 0; i < net.nodes.size(); i++) {
+//            System.out.println(net.nodes.get(i).cpt_table);
+//        }
         try {
-            FileWriter myWriter = new FileWriter("MyOutput.txt");
+            FileWriter myWriter = new FileWriter("output.txt");
             for (int i = 0; i < answers.length; i++) {
                 if (i < answers.length - 1) {
                     myWriter.write(answers[i] + "\n");
