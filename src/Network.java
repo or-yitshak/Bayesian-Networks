@@ -193,11 +193,14 @@ public class Network {
         String str = querys_subs[0].substring(2, querys_subs[0].length() - 1);//B=T|J=T,M=T
         querys_subs = str.split("\\|");//[B=T, J=T,M=T] 2 strings
         Hashtable<String, String> names_values = new Hashtable<>();//{J=T, M=T, B=T}
-        getNamesAndValues(querys_subs, names_values);
         String q = querys_subs[0].split("=")[0];
         String q_value = querys_subs[0].split("=")[1];
         names_values.put(q, q_value);
-        ArrayList<String> e = getGivens(querys_subs[1]);
+        ArrayList<String> e=new ArrayList<>();
+        if(querys_subs.length==2){
+            getNamesAndValues(querys_subs, names_values);
+            e = getGivens(querys_subs[1]);
+        }
         /*
         at first, we will check if the answer to this query is already given in one of the cpt_tables.
         to check it we will go to the query node and check if the evidence given are equal to his parents.
@@ -216,7 +219,7 @@ public class Network {
             if (t.nodes_order.size() - 1 == e.size()) {
                 ArrayList<String> s = new ArrayList<>();
                 for (int j = 0; j < t.nodes_order.size(); j++) {
-                    s.set(j, names_values.get(t.nodes_order.get(j)));
+                    s.add(names_values.get(t.nodes_order.get(j)));
                 }
                 double prob = t.table.get(s);
                 String ans = prob + ",0,0";
