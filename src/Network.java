@@ -155,20 +155,27 @@ public class Network {
 
     private static ArrayList<String> getGivens(String query) {
         ArrayList<String> ans = new ArrayList<>();
-        String given = "";
-        int i = 0;
-        while (i < query.length()) {
-            if (query.charAt(i) == '=') {
-                ans.add(given);
-                i += 3;
-                given = "";
-                if (i >= query.length()) {
-                    break;
-                }
-            }
-            given += query.charAt(i);
-            i++;
+        String[] subs = query.split(",");
+        for (int i = 0; i < subs.length; i++) {
+            String[] curr_arr = subs[i].split("=");
+            String curr_e = curr_arr[0];
+            ans.add(curr_e);
         }
+//
+//        String given = "";
+//        int i = 0;
+//        while (i < query.length()) {
+//            if (query.charAt(i) == '=') {
+//                ans.add(given);
+//                i += 3;
+//                given = "";
+//                if (i >= query.length()) {
+//                    break;
+//                }
+//            }
+//            given += query.charAt(i);
+//            i++;
+//        }
         return ans;
     }
 
@@ -189,13 +196,7 @@ public class Network {
         getNamesAndValues(querys_subs, names_values);
         String q = querys_subs[0].split("=")[0];
         String q_value = querys_subs[0].split("=")[1];
-        names_values.put(q,q_value);
-//        for (int i = 0; i < querys_subs[0].length(); i++) {
-//            if (querys_subs[0].charAt(i) == '=') {
-//                break;
-//            }
-//            q += querys_subs[0].charAt(i);
-//        }
+        names_values.put(q, q_value);
         ArrayList<String> e = getGivens(querys_subs[1]);
         /*
         at first, we will check if the answer to this query is already given in one of the cpt_tables.
@@ -213,11 +214,9 @@ public class Network {
         if (in_table) {
             Table t = q_nd.cpt_table;
             if (t.nodes_order.size() - 1 == e.size()) {
-//                String s = "";
                 ArrayList<String> s = new ArrayList<>();
                 for (int j = 0; j < t.nodes_order.size(); j++) {
-                    s.set(j,names_values.get(t.nodes_order.get(j)));
-//                    s += names_values.get(t.nodes_order.get(j));
+                    s.set(j, names_values.get(t.nodes_order.get(j)));
                 }
                 double prob = t.table.get(s);
                 String ans = prob + ",0,0";
@@ -248,12 +247,10 @@ public class Network {
 //            System.out.println(this.bayes_ball(new_query));
             if (isAncestor(q_e_nodes, hidden[i]) && !this.bayes_ball(new_query)) {
                 relevant_hidden.add(hidden[i]);
-            }
-            else {
+            } else {
                 irrelevant_hidden.add(hidden[i]);
             }
         }
-
         ArrayList<String> relevant = new ArrayList<>(relevant_hidden);
         for (int i = 0; i < e.size(); i++) {
             relevant.add(e.get(i));
@@ -273,21 +270,25 @@ public class Network {
                     evidenceReduce(new_f, curr_e, names_values.get(curr_e));
                 }
             }
-            boolean o =true;
-            for (int j = 0; j < new_f.nodes_order.size(); j++) {
-                if(!irrelevant_hidden.contains(new_f.nodes_order.get(j))){
-                    o =false;
-                }
-            }
-            if(new_f.nodes_order.size()==0 || o){
+            if (new_f.table.size() == 1) {
                 continue;
             }
             factors.add(new_f);
         }
         /*
+        now we will do the same reduce for the query node.
+         */
+        Table red_q_f = new Table(q_nd.cpt_table);
+        for (int j = 0; j < e.size(); j++) {
+            String curr_e = e.get(j);
+            if (red_q_f.nodes_order.contains(curr_e)) {
+                evidenceReduce(red_q_f, curr_e, names_values.get(curr_e));
+            }
+        }
+        /*
         the next step will be to go over the relevant factors and preform join and elimination on them in the given order.
          */
-        factors.add(q_nd.cpt_table);
+        factors.add(red_q_f);
         factors.sort(Table::compareTo);
         AtomicInteger mul_counter = new AtomicInteger();
         AtomicInteger add_counter = new AtomicInteger();
@@ -318,26 +319,54 @@ public class Network {
                     factors.remove(f1);
                     Table new_factor = elimination(f1, curr_name, add_counter);
                     factors.add(new_factor);
+                    if (new_factor.table.size() == 1) {
+                        break;
+                    }
                     factors.sort(Table::compareTo);
                     break;
                 }
             }
         }
-        while (factors.size() != 1) {
-            Table f1 = factors.get(0);
-            Table f2 = factors.get(1);
-            factors.remove(f1);
-            factors.remove(f2);
-            Table new_factor = join(f1, f2, hs, mul_counter);
-            factors.add(new_factor);
-            factors.sort(Table::compareTo);
+        /*
+        now we will preform join and elimination on the query node until we will have only 1 factor that contains him.
+         */
+        while (true) {
+            Table f1 = null;
+            Table f2 = null;
+            for (int j = 0; j < factors.size(); j++) {
+                Table curr_factor = factors.get(j);
+                if (curr_factor.nodes_order.contains(q)) {
+                    if (f1 == null) {
+                        f1 = curr_factor;
+                    } else {
+                        f2 = curr_factor;
+                        break;
+                    }
+                }
+            }
+            if (f1 != null && f2 != null) {
+                factors.remove(f1);
+                factors.remove(f2);
+                Table new_factor = join(f1, f2, hs, mul_counter);
+                factors.add(new_factor);
+                factors.sort(Table::compareTo);
+            } else {
+                break;
+            }
         }
         /*
         Finally, to get the answer to the query we need to normalize the values we got so far.
         to do that we will sum the values of each outcome and divide the probability of the wanted
         outcome in the sum.
          */
-        Table f = factors.get(0);
+        Table f = new Table();
+        for (int i = 0; i < factors.size(); i++) {
+            Table curr_f = factors.get(i);
+            if (curr_f.nodes_order.contains(q)) {
+                f = curr_f;
+                break;
+            }
+        }
         ArrayList<Double> x = new ArrayList<>(f.table.values());
         double sum = x.get(0);
         for (int i = 1; i < x.size(); i++) {
@@ -479,7 +508,7 @@ public class Network {
             for (int j = 0; j < f2.nodes_order.size(); j++) {
                 String curr_node_name = f2.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
-                String value = curr_row.get(index) ;
+                String value = curr_row.get(index);
 //                MyNode curr_node = names_nodes.get(curr_node_name);
 //                while (!curr_node.outcomes.contains(value)) {
 //                    value += curr_row.charAt(index + 1);

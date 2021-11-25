@@ -9,7 +9,7 @@ public class Ex1 {
     public static void main(String[] args) {
         Network net = new Network();
         ArrayList<String> queries = new ArrayList<>();
-        readTxtFile("input.txt", net, queries);
+        readTxtFile("input3.txt", net, queries);
         System.out.println(net);
         System.out.println(queries);
         String[] answers = new String[queries.size()];
