@@ -223,7 +223,7 @@ public class Network {
                 }
                 double prob = t.table.get(s);
                 String ans = prob + ",0,0";
-                System.out.println(ans);
+//                System.out.println(ans);
                 return ans;
             }
         }
@@ -381,8 +381,8 @@ public class Network {
         tmp.add(wanted_value);
         double y = f.table.get(tmp);
         double prob = y / sum;
-        String ans = String.format("%.5g", prob) + "," + add_counter + "," + mul_counter;
-        System.out.println(ans);
+        String ans = String.format("%.5f", prob) + "," + add_counter + "," + mul_counter;
+//        System.out.println(ans);
         return ans;
     }
 
@@ -489,7 +489,7 @@ public class Network {
         }
         ArrayList<ArrayList<String>> values_table = new ArrayList<>();
         Table.Combinations(nd_list, values_table);
-        System.out.println(values_table);
+//        System.out.println(values_table);
         double[] probs = new double[values_table.size()];
 
         for (int i = 0; i < values_table.size(); i++) {
@@ -523,14 +523,14 @@ public class Network {
             probs[i] = prob1 * prob2;
             mul_counter.addAndGet(1);
         }
-        System.out.println(ans.nodes_order);
-        System.out.println(Arrays.toString(probs));
+//        System.out.println(ans.nodes_order);
+//        System.out.println(Arrays.toString(probs));
         for (int i = 0; i < probs.length; i++) {
             ArrayList<String> curr_str = values_table.get(i);
             double curr_prob = probs[i];
             ans.table.put(curr_str, curr_prob);
         }
-        System.out.println(ans);
+//        System.out.println(ans);
         return ans;
     }
 
@@ -567,7 +567,7 @@ public class Network {
                 ans.table.put(new_key, prob);
             }
         }
-        System.out.println(ans);
+//        System.out.println(ans);
         return ans;
     }
 

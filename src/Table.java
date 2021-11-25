@@ -79,7 +79,7 @@ public class Table implements Comparable<Table> {
      */
     public static void recAddAllCombinations(ArrayList<MyNode> nodes, ArrayList<String> curr, int i, ArrayList<ArrayList<String>> t) {
         if (i == nodes.size()) {
-            System.out.println(curr);
+//            System.out.println(curr);
             ArrayList<String> new_row = new ArrayList<>(curr);
             t.add(new_row);
         } else {

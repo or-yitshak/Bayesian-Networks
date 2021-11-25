@@ -4,14 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * this is the main class of this program. it reads txt file named "input.txt" and create a Network object from the
+ * XML file that appears in the first line in "input.txt". then it reads the queries and answer them by using the
+ * Network functions. At the end it writes the answers into txt file named "output.txt"
+ */
+
 public class Ex1 {
 
     public static void main(String[] args) {
         Network net = new Network();
         ArrayList<String> queries = new ArrayList<>();
-        readTxtFile("input3.txt", net, queries);
-        System.out.println(net);
-        System.out.println(queries);
+        readTxtFile("input.txt", net, queries);
+//        System.out.println(net);
+//        System.out.println(queries);
         String[] answers = new String[queries.size()];
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
@@ -23,14 +29,14 @@ public class Ex1 {
                 } else {
                     answers[i] = "no";
                 }
-                System.out.println(net.bayes_ball(query));
+//                System.out.println(net.bayes_ball(query));
             }
         }
         for (int i = 0; i < net.nodes.size(); i++) {
-            System.out.println(net.nodes.get(i).cpt_table);
+//            System.out.println(net.nodes.get(i).cpt_table);
         }
         try {
-            FileWriter myWriter = new FileWriter("MyOutput.txt");
+            FileWriter myWriter = new FileWriter("output.txt");
             for (int i = 0; i < answers.length; i++) {
                 if (i < answers.length - 1) {
                     myWriter.write(answers[i] + "\n");
