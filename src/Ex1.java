@@ -104,7 +104,7 @@ public class Ex1 {
                     }
                     net.nodes.add(nd);
                     net.nodes_names.add(name);
-                    net.hs.put(name, nd);
+                    net.hs_names_nodes.put(name, nd);
                 }
                 if (data.contains("<FOR>")) {
                     String name = getData(data);

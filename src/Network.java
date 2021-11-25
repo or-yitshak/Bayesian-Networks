@@ -9,14 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Network {
 
-    public ArrayList<String> nodes_names;
-    public ArrayList<MyNode> nodes;
-    Hashtable<String, MyNode> hs = new Hashtable<>();
+    public ArrayList<String> nodes_names;//the names of the nodes.
+    public ArrayList<MyNode> nodes;//the nodes.
+    Hashtable<String, MyNode> hs_names_nodes = new Hashtable<>();//the key is a name of a node and the value is node object answering to this name.
 
     public Network() {
         nodes = new ArrayList<>();
         nodes_names = new ArrayList<>();
-        hs = new Hashtable<>();
+        hs_names_nodes = new Hashtable<>();
 
     }
 
@@ -161,21 +161,6 @@ public class Network {
             String curr_e = curr_arr[0];
             ans.add(curr_e);
         }
-//
-//        String given = "";
-//        int i = 0;
-//        while (i < query.length()) {
-//            if (query.charAt(i) == '=') {
-//                ans.add(given);
-//                i += 3;
-//                given = "";
-//                if (i >= query.length()) {
-//                    break;
-//                }
-//            }
-//            given += query.charAt(i);
-//            i++;
-//        }
         return ans;
     }
 
@@ -196,8 +181,8 @@ public class Network {
         String q = querys_subs[0].split("=")[0];
         String q_value = querys_subs[0].split("=")[1];
         names_values.put(q, q_value);
-        ArrayList<String> e=new ArrayList<>();
-        if(querys_subs.length==2){
+        ArrayList<String> e = new ArrayList<>();
+        if (querys_subs.length == 2) {
             getNamesAndValues(querys_subs, names_values);
             e = getGivens(querys_subs[1]);
         }
@@ -207,9 +192,9 @@ public class Network {
         if all his parents are given then the answer will appear in his cpt_table.
          */
         boolean in_table = true;
-        MyNode q_nd = hs.get(q);
+        MyNode q_nd = hs_names_nodes.get(q);
         for (int i = 0; i < e.size(); i++) {
-            MyNode curr_nd = hs.get(e.get(i));
+            MyNode curr_nd = hs_names_nodes.get(e.get(i));
             if (!q_nd.parents.contains(curr_nd)) {
                 in_table = false;
             }
@@ -222,7 +207,7 @@ public class Network {
                     s.add(names_values.get(t.nodes_order.get(j)));
                 }
                 double prob = t.table.get(s);
-                String ans = prob + ",0,0";
+                String ans = String.format("%.5f", prob) + ",0,0";
 //                System.out.println(ans);
                 return ans;
             }
@@ -239,7 +224,7 @@ public class Network {
         q_e_nodes.add(q_nd);
         for (int i = 0; i < e.size(); i++) {
             String e_str = e.get(i);
-            MyNode e_node = hs.get(e_str);
+            MyNode e_node = hs_names_nodes.get(e_str);
             q_e_nodes.add(e_node);
         }
         ArrayList<String> relevant_hidden = new ArrayList<>();
@@ -265,7 +250,7 @@ public class Network {
         ArrayList<Table> factors = new ArrayList<>();
         for (int i = 0; i < relevant.size(); i++) {
             String curr_name = relevant.get(i);
-            MyNode curr_nd = hs.get(curr_name);
+            MyNode curr_nd = hs_names_nodes.get(curr_name);
             Table new_f = new Table(curr_nd.cpt_table);
             for (int j = 0; j < e.size(); j++) {
                 String curr_e = e.get(j);
@@ -315,7 +300,7 @@ public class Network {
                 if (f1 != null && f2 != null) {
                     factors.remove(f1);
                     factors.remove(f2);
-                    Table new_factor = join(f1, f2, hs, mul_counter);
+                    Table new_factor = join(f1, f2, hs_names_nodes, mul_counter);
                     factors.add(new_factor);
                     factors.sort(Table::compareTo);
                 } else {
@@ -350,7 +335,7 @@ public class Network {
             if (f1 != null && f2 != null) {
                 factors.remove(f1);
                 factors.remove(f2);
-                Table new_factor = join(f1, f2, hs, mul_counter);
+                Table new_factor = join(f1, f2, hs_names_nodes, mul_counter);
                 factors.add(new_factor);
                 factors.sort(Table::compareTo);
             } else {
@@ -396,8 +381,6 @@ public class Network {
      */
 
     private static void getNamesAndValues(String[] x, Hashtable<String, String> names_values) {
-//        String[] q = x[0].split("=");
-//        names_values.put(q[0], q[1]);
         String[] e = x[1].split(",");
         for (int i = 0; i < e.length; i++) {
             String[] curr_e = e[i].split("=");
@@ -451,9 +434,6 @@ public class Network {
                 f.table.remove(key);
                 key.remove(index);
                 ArrayList<String> new_key = new ArrayList<>(key);
-//                if (index + value.length() < key.length()) {
-//                    new_key += key.substring(index + value.length());
-//                }
                 f.table.put(new_key, prob);
             }
         }
@@ -500,11 +480,6 @@ public class Network {
                 String curr_node_name = f1.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
                 String value = curr_row.get(index);
-
-//                MyNode curr_node = names_nodes.get(curr_node_name);
-//                while (!curr_node.outcomes.contains(value)) {
-//                    value += curr_str.charAt(index + 1);
-//                }
                 f1_row.add(value);
             }
             ArrayList<String> f2_row = new ArrayList<>();
@@ -512,10 +487,6 @@ public class Network {
                 String curr_node_name = f2.nodes_order.get(j);//E
                 int index = ans.nodes_order.indexOf(curr_node_name);// index of E in ans
                 String value = curr_row.get(index);
-//                MyNode curr_node = names_nodes.get(curr_node_name);
-//                while (!curr_node.outcomes.contains(value)) {
-//                    value += curr_row.charAt(index + 1);
-//                }
                 f2_row.add(value);
             }
             double prob1 = f1.table.get(f1_row);
