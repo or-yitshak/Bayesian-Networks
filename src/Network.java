@@ -3,27 +3,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * this class represent a Bayesian Network. it holds an ArrayList of the names of the nodes it contains,
- * an ArrayList of the nodes it contains and a Hashmap such that the key is a name of a node
- * and the value is node object answering to this name.
+ * and a Hashmap such that the key is a name of a node and the value is node object answering to this name.
  */
 
 public class Network {
 
     public ArrayList<String> nodes_names;//the names of the nodes.
-    public ArrayList<MyNode> nodes;//the nodes.
     Hashtable<String, MyNode> hs_names_nodes = new Hashtable<>();//the key is a name of a node and the value is node object answering to this name.
 
     public Network() {
-        nodes = new ArrayList<>();
         nodes_names = new ArrayList<>();
         hs_names_nodes = new Hashtable<>();
 
-    }
-
-    public MyNode getNode(String name) {
-        int nd_index = this.nodes_names.indexOf(name);
-        MyNode nd = this.nodes.get(nd_index);
-        return nd;
     }
 
     /**
@@ -41,11 +32,11 @@ public class Network {
         if (x.length == 2) {
             givens = getGivens((x[1]));// if there are given evidence we will save them in ArrayList.
         }
-        MyNode nd1 = getNode(vertices[0]);
-        MyNode nd2 = getNode(vertices[1]);
+        MyNode nd1 = hs_names_nodes.get(vertices[0]);
+        MyNode nd2 = hs_names_nodes.get(vertices[1]);
         Queue<MyNode> q = new LinkedList<>();// a queue that will hold the nodes we need to visit.
         Queue<Boolean> came_from_son_q = new LinkedList<>();// a parallel queue to the one above that hold true if we got to this node from his children and false otherwise.
-        boolean[][] visited = new boolean[this.nodes.size()][2];// 2D array the first column says if we already got to this node from his children and the 2 column says if we already got to this node from his parent.
+        boolean[][] visited = new boolean[this.nodes_names.size()][2];// 2D array the first column says if we already got to this node from his children and the 2 column says if we already got to this node from his parent.
         /*
         we will begin to travel on the network from nd1 so at first we will add his parents and children.
          */
@@ -65,14 +56,14 @@ public class Network {
             q.offer(child);
             came_from_son_q.offer(false);
         }
-        int j = this.nodes.indexOf(nd1);
+        int j = this.nodes_names.indexOf(nd1.name);
         visited[j][0] = true;
         visited[j][1] = true;
         while (!q.isEmpty()) {//traveling in the network in BFS style combined with bayes ball rules.
             MyNode curr_nd = q.poll();
             boolean came_from_son = came_from_son_q.poll();
             boolean is_given = givens.contains(curr_nd.name);
-            j = this.nodes.indexOf(curr_nd);
+            j = this.nodes_names.indexOf(curr_nd.name);
             if (visited[j][0] && came_from_son) {//if we already came to this node from his children we can skip it to avoid repeating the same actions again.
                 continue;
             }
@@ -546,7 +537,7 @@ public class Network {
     @Override
     public String toString() {
         return "Network{\n" +
-                nodes +
+                hs_names_nodes +
                 '}';
     }
 }

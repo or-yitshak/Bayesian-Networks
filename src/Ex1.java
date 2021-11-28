@@ -32,9 +32,6 @@ public class Ex1 {
 //                System.out.println(net.bayes_ball(query));
             }
         }
-        for (int i = 0; i < net.nodes.size(); i++) {
-//            System.out.println(net.nodes.get(i).cpt_table);
-        }
         try {
             FileWriter myWriter = new FileWriter("output.txt");
             for (int i = 0; i < answers.length; i++) {
@@ -102,17 +99,16 @@ public class Ex1 {
                         nd.outcomes.add(outcome);
                         data = myReader.nextLine();
                     }
-                    net.nodes.add(nd);
                     net.nodes_names.add(name);
                     net.hs_names_nodes.put(name, nd);
                 }
                 if (data.contains("<FOR>")) {
                     String name = getData(data);
-                    MyNode curr_nd = net.getNode(name);
+                    MyNode curr_nd = net.hs_names_nodes.get(name);
                     data = myReader.nextLine();
                     while (data.contains("<GIVEN>")) {
                         String parent_name = getData(data);
-                        MyNode parent = net.getNode(parent_name);
+                        MyNode parent = net.hs_names_nodes.get(parent_name);
                         curr_nd.parents.add(parent);
                         parent.children.add(curr_nd);
                         data = myReader.nextLine();
