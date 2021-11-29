@@ -16,8 +16,6 @@ public class Ex1 {
         Network net = new Network();
         ArrayList<String> queries = new ArrayList<>();
         readTxtFile("input.txt", net, queries);
-//        System.out.println(net);
-//        System.out.println(queries);
         String[] answers = new String[queries.size()];
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
@@ -29,7 +27,6 @@ public class Ex1 {
                 } else {
                     answers[i] = "no";
                 }
-//                System.out.println(net.bayes_ball(query));
             }
         }
         try {

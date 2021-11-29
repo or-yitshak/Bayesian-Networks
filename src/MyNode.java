@@ -13,7 +13,7 @@ public class MyNode {
     public ArrayList<String> outcomes;
     public ArrayList<MyNode> parents;
     public ArrayList<MyNode> children;
-    public Table cpt_table;//should be a class.
+    public Table cpt_table;
 
 
     public MyNode(String name) {
