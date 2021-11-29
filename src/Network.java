@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * this class represent a Bayesian Network. it holds an ArrayList of the names of the nodes it contains,
  * and a Hashmap such that the key is a name of a node and the value is node object answering to this name.
  */
-
+@SuppressWarnings("unchecked")
 public class Network {
 
     public ArrayList<String> nodes_names;//the names of the nodes.
@@ -14,7 +14,6 @@ public class Network {
     public Network() {
         nodes_names = new ArrayList<>();
         hs_names_nodes = new Hashtable<>();
-
     }
 
     /**
