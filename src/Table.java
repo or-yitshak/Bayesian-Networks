@@ -10,8 +10,9 @@ import java.util.Set;
  */
 public class Table implements Comparable<Table> {
     ArrayList<String> nodes_order;
-//    Hashtable<String, Double> table;//Strings need to be changed to ArrayList that means that it should be Hashtable<ArrayList<String>, Double>
+    //    Hashtable<String, Double> table;//Strings need to be changed to ArrayList that means that it should be Hashtable<ArrayList<String>, Double>
     Hashtable<ArrayList<String>, Double> table;
+
     public Table() {
         table = new Hashtable<>();
         nodes_order = new ArrayList<>();
@@ -24,7 +25,7 @@ public class Table implements Comparable<Table> {
         for (ArrayList<String> key : keys) {
             double prob = t.table.get(key);
             ArrayList<String> new_key = new ArrayList<>(key);
-            this.table.put(new_key,prob);
+            this.table.put(new_key, prob);
         }
     }
 

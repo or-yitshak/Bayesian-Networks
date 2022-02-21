@@ -20,7 +20,12 @@ public class Ex1 {
         for (int i = 0; i < queries.size(); i++) {
             String query = queries.get(i);
             if (query.charAt(0) == 'P') {
-                answers[i] = net.variableElimination(query);
+                try {
+                    answers[i] = net.variableElimination(query);
+                }
+                catch (Exception e){
+                    answers[i] = "problem";
+                }
             } else {
                 if (net.bayes_ball(query)) {
                     answers[i] = "yes";
@@ -30,7 +35,7 @@ public class Ex1 {
             }
         }
         try {
-            FileWriter myWriter = new FileWriter("output.txt");
+            FileWriter myWriter = new FileWriter("MyOutput.txt");
             for (int i = 0; i < answers.length; i++) {
                 if (i < answers.length - 1) {
                     myWriter.write(answers[i] + "\n");
